@@ -25,8 +25,23 @@ Owen Derby, \texttt{oderby}\\
 Dennis Wilson, \texttt{dennisw}\\
 
 \paragraph{Problem} ~\\
+The Android framework allows apps and components within apps to communicate with
+one another by broadcasting messages to BroadcastReceivers \begin{comment} link
+to documentation \end{comment} with messages contained in Intents. By default,
+any app can communicate with a BroadcastReceiver, although they can be
+configured to only accept messages from apps with appropriate privileges or from
+other components of the same app.
 
 \paragraph{Proposal} ~\\
+We plan to build a static analysis tool that will look for vulnerabilities in
+Android apps that result from bad intent processing. This analysis tool will
+look at BroadcastReceivers that are not protected by system or signature
+privileges and trace the input from those intents. If the input is used to
+access sensitive data or priviliges without being sanitized, it will be marked
+as a potential vulnerability. We will test our tool on apps found
+\begin{comment}google code site\end{comment}. If we find an app with a bug that
+will allow us to do something interesting, we will also create an app that
+demonstrates the potential exploits.
 
 \end{document}
 
