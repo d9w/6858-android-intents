@@ -28,13 +28,7 @@ Owen Derby, \texttt{oderby}\\
 Dennis Wilson, \texttt{dennisw}\\
 
 \paragraph{Problem} ~\\
-The Android framework allows apps and components within apps to communicate with
-one another by broadcasting messages to BroadcastReceivers with messages
-contained in
-\href{https://developer.android.com/reference/android/content/Intent.html}{Intents}.
-By default, any app can communicate with a BroadcastReceiver, although they can
-be configured to only accept messages from apps with appropriate privileges or
-from other components of the same app.
+The Android framework allows apps and components within apps to communicate with one another by broadcasting messages to BroadcastReceivers with messages contained in \href{https://developer.android.com/reference/android/content/Intent.html}{Intents}. While the security vulnerabilities in outgoing Intents has been well studied\cite{chin_analayzing_2011} and developer tools exist to limit potentially insecure Intents, little has been done to address malicious incoming Intents. Exploits of this nature have been discovered in firmware of various Android phones\cite{grace_systematic_2012}, but third-party applications have not been explored. Application developers must make sure their manifest file has been properly configured to only accept desired Intents, which can limit usability. We believe that developers will trust Intent input by default, allowing malicious input to potentially crash or abuse the application. 
 
 \paragraph{Proposal} ~\\
 We plan to build a static analysis tool that will look for vulnerabilities in
@@ -43,7 +37,7 @@ look at BroadcastReceivers that are not protected by system or signature
 privileges and trace the input from those intents. If the input is used to
 access sensitive data or priviliges without being sanitized, it will be marked
 as a potential vulnerability. We will test our tool on apps found on the
-\href{https://play.google.com/store/apps}{Google Play} store. If we find an app
+\href{https://play.google.com/store/apps}{Google Play} store and use a dissasembly tool such as Dedexer or bacsmali to evaluate the application code. If we find an app
 with a bug that will allow us to do something interesting, we will also create
 an app that demonstrates the potential exploits.
 
