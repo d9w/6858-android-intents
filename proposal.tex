@@ -28,7 +28,21 @@ Owen Derby, \texttt{oderby}\\
 Dennis Wilson, \texttt{dennisw}\\
 
 \paragraph{Problem} ~\\
-The Android framework allows apps and components within apps to communicate with one another by broadcasting messages to BroadcastReceivers with messages contained in \href{https://developer.android.com/reference/android/content/Intent.html}{Intents}. While the security vulnerabilities in outgoing Intents has been well studied\cite{chin_analayzing_2011} and developer tools exist to limit potentially insecure Intents, little has been done to address malicious incoming Intents. Exploits of this nature have been discovered in firmware of various Android phones\cite{grace_systematic_2012}, but third-party applications have not been explored. Application developers must make sure their manifest file has been properly configured to only accept desired Intents, which can limit usability. We believe that developers will trust Intent input by default, allowing malicious input to potentially crash or abuse the application. 
+The Android framework allows apps and components within apps to communicate with
+one another by passing messages, called
+\href{https://developer.android.com/reference/android/content/Intent.html}{Intents},
+which specify both a procedure to call and the arguments to use. Applications
+must declare in a static manifest file which intents each component services, as
+well as both application and component level permissions. While the security
+vulnerabilities in outgoing Intents has been well studied
+\cite{chin_analyzing_2011} and developer tools exist to limit potentially
+insecure Intents, little has been done to address malicious incoming
+Intents. Exploits of this nature have been discovered in firmware of various
+Android phones\cite{grace_systematic_2012}, but exploits in third-party
+applications are not well studied. Application developers must make sure their
+manifest file has been properly configured to only accept desired Intents, which
+can limit usability. We believe that developers will trust Intent input by
+default, allowing malicious input to potentially crash or abuse the application.
 
 \paragraph{Proposal} ~\\
 We plan to build a static analysis tool that will look for vulnerabilities in
