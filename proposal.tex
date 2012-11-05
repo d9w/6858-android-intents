@@ -51,8 +51,8 @@ BroadcastReceiver, and Service, that are not protected by system or signature
 privileges. Intent input that is directly used by these classes without checking
 or sanitization will be considered a potential vulnerability. We will test our
 tool on apps found on the \href{https://play.google.com/store/apps}{Google Play}
-store and use a dissasembly tool such as Dedexer \cite{dedexer} or
-baksmali \cite{baksmali} to evaluate the application code. We will look for
+store and use a dissasembly tool such as baksmali \cite{baksmali} or
+Dedexer \cite{dedexer} to evaluate the application code. We will look for
 potential vulnerabilities using the proposed static analysis tool and further
 examine applications that use unchecked Intent input to access sensitive data or
 privileges.\\
