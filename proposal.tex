@@ -1,8 +1,7 @@
-\documentclass[12pt,a4paper,draft]{article}
+\documentclass[12pt,a4paper]{article}
 \usepackage{verbatim}
 \usepackage{listings}
 \usepackage{hyperref}
-\addtolength{\voffset}{-60pt}
 
 \begin{comment}
 Project proposal. Discuss your proposed idea with course staff over the next
@@ -38,7 +37,7 @@ vulnerabilities in outgoing Intents has been well studied
 \cite{chin_analyzing_2011} and developer tools exist to limit potentially
 insecure Intents, little has been done to address malicious incoming
 Intents. Exploits of this nature have been discovered in firmware of various
-Android phones\cite{grace_systematic_2012}, but exploits in third-party
+Android phones \cite{grace_systematic_2012}, but exploits in third-party
 applications are not well studied. Application developers must make sure their
 manifest file has been properly configured to only accept desired Intents, which
 can limit usability. We believe that developers will trust Intent input by
@@ -52,8 +51,8 @@ BroadcastReceiver, and Service, that are not protected by system or signature
 privileges. Intent input that is directly used by these classes without checking
 or sanitization will be considered a potential vulnerability. We will test our
 tool on apps found on the \href{https://play.google.com/store/apps}{Google Play}
-store and use a dissasembly tool such as Dedexer\cite{dedexer} or
-baksmali\cite{baksmali} to evaluate the application code. We will look for
+store and use a dissasembly tool such as Dedexer \cite{dedexer} or
+baksmali \cite{baksmali} to evaluate the application code. We will look for
 potential vulnerabilities using the proposed static analysis tool and further
 examine applications that use unchecked Intent input to access sensitive data or
 privileges.\\
