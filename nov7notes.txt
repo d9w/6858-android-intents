@@ -1,0 +1,9 @@
+Plan on finishing static analysis tool nov 14
+Find vulnerable apps by nov 21
+Exploit maybe done by nov 28, maybe that weekend.
+Final two weeks finishing app and writing paper.
+
+We need to properly define exploit in our paper: example of camera privelege
+escalation. 
+
+Next meeting Monday 12th 11:30 Stata somewhere 
