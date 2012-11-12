@@ -1,0 +1,76 @@
+
+syntax: regexp
+^pdfview/bin$
+syntax: regexp
+^pdfview/gen$
+syntax: regexp
+^pdfview/jni/pdfview2/lib$
+syntax: regexp
+^pdfview/jni/pdfview2/include$
+glob:pdfview/jni/mupdf/_darcs
+glob:pdfview/libs
+
+syntax: regexp
+^pdfview/jni/mupdf/apps$
+syntax: regexp
+^pdfview/jni/mupdf/android$
+syntax: regexp
+^pdfview/jni/mupdf/xps$
+syntax: regexp
+^pdfview/jni/mupdf/scripts$
+syntax: regexp
+^pdfview/jni/mupdf/build$
+syntax: regexp
+^pdfview/jni/mupdf/generated$
+syntax: regexp
+^pdfview/jni/mupdf/\.git.*$
+syntax: regexp
+^pdfview/jni/mupdf/fonts/droid$
+syntax: regexp
+^pdfview/jni/mupdf/fonts$
+glob:pdfview/jni/mupdf/cmaps
+syntax: regexp
+^pdfview/jni/mupdf/pdf(?!.*(apv|\.mk)$).+
+syntax: regexp
+^pdfview/jni/mupdf/fitz(?!.*(apv|\.mk)$).+
+syntax: regexp
+^pdfview/jni/mupdf/draw(?!.*(apv|\.mk)$).+
+syntax: regexp
+^pdfview/jni/mupdf/debian(?!.*(apv|\.mk)$).+
+syntax: regexp
+^pdfview/jni/mupdf/win32(?!.*(apv|\.mk)$).+
+syntax: regexp
+^pdfview/jni/openjpeg(?!.*(apv|\.mk|config.h)$).+
+syntax: regexp
+^pdfview/jni/jbig2dec(?!.*(apv|\.mk)$).+
+syntax: regexp
+^pdfview/jni/freetype(?!.*\.mk$).+
+
+
+syntax: regexp
+^pdfview/jni/jpeg/cderror\.h$
+glob:pdfview/jni/jpeg/Makefile.am
+syntax: regexp
+^pdfview/jni/jpeg/(?!.*\.mk$).+
+
+glob:pdfview/jni/pdfview2/.*.swp
+glob:pdfview/jni/mupdf/COPYING
+glob:pdfview/jni/mupdf/Jamfile
+glob:pdfview/jni/mupdf/README
+glob:pdfview/jni/mupdf/Jamrules
+glob:pdfview/res/drawable/Thumbs.db
+glob:.DS_Store
+
+regexp:^pdfview/jni/mupdf/Makefile$
+regexp:^pdfview/\.settings$
+
+syntax: glob
+pdfview/obj
+pdfview/deps/freetype-2.4.10
+pdfview/deps/jpeg-8d
+pdfview/deps/mupdf-1.1-source
+pdfview/deps/openjpeg-1.5.1
+pdfview/deps/jbig2dec-0.11
+pdfview/deps/mupdf
+fontdump
+opj_config.h
