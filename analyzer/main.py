@@ -5,6 +5,8 @@ import getopt
 import zipfile
 import os
 from androlyze import *
+from xmlparse import *
+from codeparse import *
 
 def main(argv):
     apk = ''
@@ -24,7 +26,7 @@ def main(argv):
     print apk
     # analyze apk and get bytecode
     a, d, dx = AnalyzeAPK(apk)
-    a.show()
+    # pass to parsers to find vulnerabilities
 
 if __name__ == "__main__":
    main(sys.argv[1:])
