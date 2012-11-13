@@ -12,6 +12,7 @@ SERVICE = 1
 RECEIVER = 2
 PROVIDER = 3
 tag2type = { "activity":ACTIVITY,
+             "activity-alias":ACTIVITY,
              "service":SERVICE,
              "receiver":RECEIVER,
              "provider":PROVIDER}
@@ -22,7 +23,6 @@ type2tag = { ACTIVITY:"activity",
 
 class Component:
     def __init__(self, element):
-        self.public = False
         self.element = element
         self.type = tag2type[element.tagName]
         self.name = self.element.getAttribute("android:name")
@@ -39,6 +39,7 @@ class Component:
         if self.element.hasChildNodes():
             for child in [c for c in self.element.childNodes if isinstance(c,Element)]:
                 has_filter = has_filter or child.tagName == "intent-filter"
+        # See http://developer.android.com/guide/topics/manifest/service-element.html#exported
         if has_filter:
             if exported_set: return exported
             else: return True
@@ -65,6 +66,11 @@ def main(apk_file):
             components.append(Component(item))
 
     print [c for c in components if c.is_public()]
+
+    # Links to check out:
+    # http://developer.android.com/guide/topics/manifest/provider-element.html#gprmsn
+    # http://developer.android.com/guide/topics/manifest/data-element.html
+
 
 if __name__ == "__main__" :
     main(sys.argv[1])
