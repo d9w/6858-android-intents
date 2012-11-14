@@ -5,6 +5,8 @@ import sys
 from xml.dom.minidom import Element
 
 from androguard.core.bytecodes import apk
+from androguard.core.bytecodes import dvm
+
 import permissions as perms
 
 
@@ -18,16 +20,26 @@ tag2type = { "activity":ACTIVITY,
              "service":SERVICE,
              "receiver":RECEIVER,
              "provider":PROVIDER}
+
 type2tag = { ACTIVITY:"activity",
              SERVICE:"service",
              RECEIVER:"receiver",
              PROVIDER:"provider"}
 
+type2methods = { ACTIVITY: ["onCreate"],
+                 SERVICE: ["onStartCommand", "onBind"],
+                 RECEIVER: ["onReceive"],
+                 PROVIDER: []}
+
 class Component:
     def __init__(self, element, perm=None):
         self.element = element
         self.type = tag2type[element.tagName]
-        self.name = self.element.getAttribute("android:name")
+        if self.element.tagName == "activity-alias":
+            self.name = self.element.getAttribute("android:targetActivity")
+        else:
+            self.name = self.element.getAttribute("android:name")
+        self.path = '/'.join(self.name.split('.'))+";"
         if self.element.hasAttribute("android:permission"):
             self.perm = self.element.getAttribute("android:permission")
         else:
@@ -60,9 +72,11 @@ class Component:
             return self.is_public()
 
 def cleanup_attributes(a, element):
-    if isinstance(element,Element) and element.hasAttribute("android:name"):
-        name_attr = element.getAttributeNode("android:name")
-        name_attr.value = a.format_value(name_attr.value)
+    if isinstance(element,Element):
+        for tag in ["android:name", "android:targetActivity"]:
+            if element.hasAttribute(tag):
+                name_attr = element.getAttributeNode(tag)
+                name_attr.value = a.format_value(name_attr.value)
     if element.hasChildNodes():
         for e in element.childNodes:
             cleanup_attributes(a, e)
@@ -75,23 +89,44 @@ def extract_perms(manifest):
             level = perms.text2perm[p.getAttribute("android:protectionLevel")]
         perms.permissions[perm] = level
 
-def main(apk_file):
+def get_exploitable_methods(apk_file):
     a = apk.APK(apk_file)
     xml = a.get_AndroidManifest()
     cleanup_attributes(a,xml.documentElement)
     extract_perms(xml)
 
-    activity = xml.getElementsByTagName("activity")[0]
-    act_perm = None
-    if activity.hasAttribute("android:permission"):
-        act_perm = activity.getAttribute("android:permission")
+    app = xml.getElementsByTagName("application")[0]
+    app_perm = None
+    if app.hasAttribute("android:permission"):
+        app_perm = activity.getAttribute("android:permission")
 
     components = []
     for comp_name in tag2type.keys():
         for item in xml.getElementsByTagName(comp_name):
-            components.append(Component(item, act_perm))
+            comp = Component(item, app_perm)
+            if comp.is_exploitable():
+                components.append(comp)
 
-    print [c for c in components if c.is_exploitable()]
+    print components
+
+    d = dvm.DalvikVMFormat(a.get_dex())
+    classes = d.get_classes()
+    exploitable_methods = []
+    for comp in components:
+        c_objects = [k for k in classes if k.get_name().count(comp.path) > 0]
+        if len(c_objects) != 1:
+            print "oh no! Found %d classes for component %s" % (len(c_objects), comp.name)
+            continue
+        c_obj = c_objects[0]
+        # TODO: perhaps we need to look for methods in superclass? For example:
+        # BitCoin Wallet app has receiver
+        # de.schildbach.wallet.WalletBalanceWidgetProvider
+        # which subclasses android.appwidget.AppWidgetProvider, which is where
+        # the onReceive method is implemented...
+        method_objects = [m for m in c_obj.get_methods() if m.get_name() in type2methods[comp.type]]
+        exploitable_methods = exploitable_methods + method_objects
+
+    print [m.get_name() for m in exploitable_methods]
 
     # Links to check out:
     # http://developer.android.com/guide/topics/manifest/provider-element.html#gprmsn
@@ -99,5 +134,6 @@ def main(apk_file):
     # https://developer.android.com/guide/topics/security/permissions.html#enforcement
 
 
+
 if __name__ == "__main__" :
-    main(sys.argv[1])
+    get_exploitable_methods(sys.argv[1])
