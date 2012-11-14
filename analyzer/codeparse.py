@@ -9,6 +9,8 @@ def get_permission_access(d,dx,permission_names):
         methods[p]=[]
         if p in permissions:
             for path in permissions[p]:
-                methods[p].append(cm.get_method_ref(path.get_src_idx()))
-
+                if isinstance(path,PathP):
+                    methods[p].append(cm.get_method_ref(path.get_src_idx()))
+                else:
+                    methods[p].append(cm.get_method_ref(path.get_dst_idx()))
     return methods
