@@ -2,11 +2,13 @@
 
 import sys
 import getopt
-import zipfile
 import os
 from androlyze import *
-from xmlparse import *
-from codeparse import *
+from permissions import *
+from androguard.decompiler.dad import decompile
+from androguard.core.analysis.analysis import *
+#from xmlparse import get_exploitable_methods
+from codeparse import get_permission_access
 
 def main(argv):
     apk = ''
@@ -23,10 +25,35 @@ def main(argv):
        # apk
        elif opt in ("-a", "--apk"):
            apk = arg
-    print apk
+
     # analyze apk and get bytecode
     a, d, dx = AnalyzeAPK(apk)
+    vm = dvm.DalvikVMFormat(a.get_dex())
+    vmx = analysis.VMAnalysis(vm)
+
     # pass to parsers to find vulnerabilities
+    openMethods = vm.get_methods()#get_exploitable_methods(apk)
+    permKeys = [k.split('.')[-1] for k in permissions.keys()]
+    permMethods = get_permission_access(d,dx,permKeys)
+
+    # compare lists of methods
+    for perm,methods in permMethods.items():
+        for method in methods:
+            if method in openMethods:
+                # print code from matching methods
+                mx = vmx.get_method(method)
+
+                if method.get_code() == None:
+                  continue
+
+                print perm, method.get_class_name(), method.get_name(), method.get_descriptor()
+
+                ms = decompile.DvMethod(mx)
+                # process to the decompilation
+                ms.process()
+
+                # get the source !
+                print ms.get_source()
 
 if __name__ == "__main__":
    main(sys.argv[1:])
