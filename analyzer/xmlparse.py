@@ -7,7 +7,7 @@ from xml.dom.minidom import Element
 from androguard.core.bytecodes import apk
 from androguard.core.bytecodes import dvm
 
-import permissions as perms
+import permissions
 
 
 # Component Types Enum
@@ -32,7 +32,7 @@ type2methods = { ACTIVITY: ["onCreate"],
                  PROVIDER: []}
 
 class Component:
-    def __init__(self, element, perm=None):
+    def __init__(self, element, perms, perm=None):
         self.element = element
         self.type = tag2type[element.tagName]
         if self.element.tagName == "activity-alias":
@@ -40,10 +40,14 @@ class Component:
         else:
             self.name = self.element.getAttribute("android:name")
         self.path = '/'.join(self.name.split('.'))+";"
+        self.perm_level = None
+        self.perm = None
         if self.element.hasAttribute("android:permission"):
             self.perm = self.element.getAttribute("android:permission")
-        else:
+        elif perm:
             self.perm = perm
+        if self.perm:
+            self.perm_level = perms[self.perm]
 
     def __repr__(self):
         return "<"+type2tag[self.type] + " " + self.name + ">"
@@ -67,7 +71,7 @@ class Component:
 
     def is_exploitable(self):
         if self.perm:
-            return self.is_public() and perms.permissions[self.perm]<perms.SIG
+            return self.is_public() and self.perm_level<permissions.SIG
         else:
             return self.is_public()
 
@@ -82,18 +86,26 @@ def cleanup_attributes(a, element):
             cleanup_attributes(a, e)
 
 def extract_perms(manifest):
+    new_perms = {}
     for p in manifest.getElementsByTagName("permission"):
         perm = p.getAttribute("android:name")
-        level = perms.NORMAL
+        level = permissions.NORMAL
         if p.hasAttribute("android:protectionLevel"):
-            level = perms.text2perm[p.getAttribute("android:protectionLevel")]
-        perms.permissions[perm] = level
+            level = permissions.text2perm[p.getAttribute("android:protectionLevel")]
+        new_perms[perm] = level
+    return new_perms
 
-def get_exploitable_methods(apk_file):
-    a = apk.APK(apk_file)
+def get_used_perms(a):
+    xml = a.get_AndroidManifest()
+    perms = []
+    for p in xml.getElementsByTagName("uses-permission"):
+        perms.append(p.getAttribute("android:name").split(".")[-1])
+    return perms
+
+def get_exploitable_methods(a, d, perms):
     xml = a.get_AndroidManifest()
     cleanup_attributes(a,xml.documentElement)
-    extract_perms(xml)
+    perms.update(extract_perms(xml))
 
     app = xml.getElementsByTagName("application")[0]
     app_perm = None
@@ -103,13 +115,12 @@ def get_exploitable_methods(apk_file):
     components = []
     for comp_name in tag2type.keys():
         for item in xml.getElementsByTagName(comp_name):
-            comp = Component(item, app_perm)
+            comp = Component(item, perms, app_perm)
             if comp.is_exploitable():
                 components.append(comp)
 
     print components
 
-    d = dvm.DalvikVMFormat(a.get_dex())
     classes = d.get_classes()
     exploitable_methods = []
     for comp in components:
@@ -127,13 +138,13 @@ def get_exploitable_methods(apk_file):
         exploitable_methods = exploitable_methods + method_objects
 
     print [m.get_name() for m in exploitable_methods]
-
     # Links to check out:
     # http://developer.android.com/guide/topics/manifest/provider-element.html#gprmsn
     # http://developer.android.com/guide/topics/manifest/data-element.html
     # https://developer.android.com/guide/topics/security/permissions.html#enforcement
 
+    return exploitable_methods
 
 
 if __name__ == "__main__" :
-    get_exploitable_methods(sys.argv[1])
+    get_exploitable_methods(apk.APK(sys.argv[1]), dvm.DalvikVMFormat(a.get_dex()),permissions.permissions)

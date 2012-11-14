@@ -8,8 +8,8 @@ def get_permission_access(d,dx,permission_names):
     permissions = dx.get_permissions(permission_names)
     methods ={}
     for p in permission_names:
-        methods[p]=[]
         if p in permissions:
+            methods[p]=[]
             for path in permissions[p]:
                 try:#if isinstance(path,PathP):
                     methods[p].append(cm.get_method_ref(path.get_src_idx()))
