@@ -7,7 +7,7 @@ from androlyze import *
 from permissions import *
 from androguard.decompiler.dad import decompile
 from androguard.core.analysis.analysis import *
-from xmlparse import get_exploitable_methods, get_used_perms
+from xmlparse import get_exploitable_methods
 from codeparse import get_permission_access
 
 def main(argv):
@@ -39,12 +39,15 @@ def main(argv):
 
     # pass to parsers to find vulnerabilities
     openMethods = get_exploitable_methods(a,d, permissions)#vm.get_methods()
-    usedPerms = get_used_perms(a)
+    usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
     permKeys = [k.split('.')[-1] for k in permissions.keys()]
     permMethods = get_permission_access(d,dx,permKeys)
 
     print "perms manifest says app uses: " + str(usedPerms)
-    print "perms actually used by app: " + str(permMethods.keys())
+    #print "perms actually used by app: " + str(permMethods.keys())
+    print "other perms:"
+    analysis.show_Permissions(dx)
+
     # compare lists of methods
     for perm,methods in permMethods.items():
         for method in methods:

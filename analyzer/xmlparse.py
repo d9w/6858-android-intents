@@ -95,13 +95,6 @@ def extract_perms(manifest):
         new_perms[perm] = level
     return new_perms
 
-def get_used_perms(a):
-    xml = a.get_AndroidManifest()
-    perms = []
-    for p in xml.getElementsByTagName("uses-permission"):
-        perms.append(p.getAttribute("android:name").split(".")[-1])
-    return perms
-
 def get_exploitable_methods(a, d, perms):
     xml = a.get_AndroidManifest()
     cleanup_attributes(a,xml.documentElement)
