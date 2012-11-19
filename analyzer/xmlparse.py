@@ -91,6 +91,8 @@ def extract_perms(manifest):
         perm = p.getAttribute("android:name")
         level = permissions.NORMAL
         if p.hasAttribute("android:protectionLevel"):
+            print perm
+            print p.getAttribute("android:protectionLevel")
             level = permissions.text2perm[p.getAttribute("android:protectionLevel")]
         new_perms[perm] = level
     return new_perms

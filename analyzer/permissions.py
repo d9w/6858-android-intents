@@ -7,10 +7,14 @@ SIG = 2
 SIGSYS = 3
 
 text2perm = {
+    "0": NORMAL,
     "normal": NORMAL,
+    "1": DANG,
     "dangerous": DANG,
     "signature": SIG,
+    "2": SIG,
     "signatureOrSystem":SIGSYS,
+    "3":SIGSYS,
     "signature|system":SIGSYS}
 
 permissions = {

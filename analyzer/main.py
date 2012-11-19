@@ -48,7 +48,6 @@ def main(argv):
     for i in range(len(apks)):
         try:
             apk = apks[i]
-            out = open(outs[i],'w')
             print apk
             if apk is None:
                 print 'main.py -a <apk> -o <output> -d <directory>' # error
@@ -60,6 +59,10 @@ def main(argv):
             # xml parser finds accessible methods
             perms = create_perms()
             openMethods = get_exploitable_methods(a,d, perms)
+            if len(openMethods) < 1:
+                print "apk has no public entry points"
+                continue
+            out = open(outs[i],'w')
             openMethodsdic = {m[1].get_name()+m[1].get_class_name(): m for m in openMethods}
             usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
 
@@ -76,12 +79,14 @@ def main(argv):
             out.write('\n\nMatching methods:\n')
             # compare lists of methods
             for perm,methods in permMethods.items():
-                for method in methods:
+                for method,inv in methods:
                     if method.get_name()+method.get_class_name() in openMethodsdic.keys():
                         comp,meth = openMethodsdic[method.get_name()+method.get_class_name()]
                         if perm != comp.perm:
-                            print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
-                            out.write('\nMATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n')
+                            s = "MATCH:%s %s with perm %s maps to %s with perm %s" % (perm, meth.get_name()+meth.get_class_name(), comp.perm, inv.get_name(), perm)
+                            print s
+                            #print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
+                            out.write('\n%s\n' % s)
 
 
                             # get method source object
