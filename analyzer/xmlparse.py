@@ -71,7 +71,7 @@ class Component:
 
     def is_exploitable(self):
         if self.perm:
-            return self.is_public() and self.perm_level<permissions.SIG
+            return self.is_public() and self.perm_level<permissions.DANG
         else:
             return self.is_public()
 

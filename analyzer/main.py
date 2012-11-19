@@ -64,7 +64,7 @@ def main(argv):
             usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
 
             # code parser finds permission-using methods
-            permMethods = get_permission_access(d,dx, [k for k in perms.keys() if perms[k] >= SIG])
+            permMethods = get_permission_access(d,dx, [k for k in perms.keys() if perms[k] >= DANG])
 
             # write the used permissions
             out.write('Permissions declared in the manifest:\n')
