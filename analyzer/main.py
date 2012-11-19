@@ -1,8 +1,8 @@
 #!/usr/bin/python
 
 import sys
-import getopt
 import os
+from optparse import OptionParser
 from androlyze import *
 from permissions import *
 from androguard.decompiler.dad import decompile
@@ -11,61 +11,78 @@ from xmlparse import get_exploitable_methods
 from codeparse import get_permission_access
 
 def main(argv):
-    apk = None
-    try:
-       opts, args = getopt.getopt(argv,"ha:",["apk="]) # add other options here
-    except getopt.GetoptError:
-       print 'test.py -a <apk>' # error ouput
-       sys.exit(2)
-    for opt, arg in opts: # handle options
-       # help
-       if opt == '-h':
-           print 'test.py -a <apk>'
-           sys.exit()
-       # apk
-       elif opt in ("-a", "--apk"):
-           apk = arg
+    # set flag options
+    parser = OptionParser()
+    parser.add_option("-a", "--apk", dest="apk",
+                      help="apk FILE", metavar="FILE")
+    parser.add_option("-o", "--output", dest="output",
+                      help="output FILE", metavar="FILE")
+    parser.add_option("-d","--directory", dest="directory",
+                      help="directory DIR", metavar="DIR")
 
-    if apk is None:
-        print 'test.py -a <apk>'
-        sys.exit()
-    # analyze apk and get bytecode
-    a, d, dx = AnalyzeAPK(apk)
-    #vm = dvm.DalvikVMFormat(a.get_dex())
-    #vmx = analysis.VMAnalysis(vm)
+    (options, args) = parser.parse_args()
 
-    # vm is just d and so vmx is dx...
-    vmx = dx
+    if options.apk is None:
+        if options.directory is None:
+            print 'main.py requires either -a <apk> or -d <directory>'
+            sys.exit()
+        else:
+            d = options.directory
+            apks = [d+'/'+f for f in os.listdir(d) if f.lower().endswith('apk')]
+            outs = [f.rsplit('.',1)[0]+'.txt' for f in apks]
+    else:
+        apks = [options.apk]
+        if options.output is None:
+            outs = [apks[0].rsplit('.',1)[0]+'.txt']
+        else:
+            outs = [options.output]
 
-    # pass to parsers to find vulnerabilities
-    openMethods = get_exploitable_methods(a,d, permissions)#vm.get_methods()
-    usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
-    permKeys = [k.split('.')[-1] for k in permissions.keys()]
-    permMethods = get_permission_access(d,dx,permKeys)
+    for i in range(len(apks)):
+        try:
+            apk = apks[i]
+            out = open(outs[i],'w')
+            print apk
+            if apk is None:
+                print 'main.py -a <apk> -o <output> -d <directory>' # error
+                sys.exit()
+            # analyze apk and get bytecode
+            a, d, dx = AnalyzeAPK(apk)
+            classdict = {c.get_name(): c for c in d.get_classes()}
 
-    print "perms manifest says app uses: " + str(usedPerms)
-    #print "perms actually used by app: " + str(permMethods.keys())
-    print "other perms:"
-    analysis.show_Permissions(dx)
+            # xml parser finds accessible methods
+            openMethods = get_exploitable_methods(a,d, permissions)#vm.get_methods()
+            openMethodsdic = {m.get_name()+m.get_class_name(): m for m in openMethods}
+            usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
+            permKeys = [k.split('.')[-1] for k in permissions.keys()]
 
-    # compare lists of methods
-    for perm,methods in permMethods.items():
-        for method in methods:
-            if method in openMethods:
-                # print code from matching methods
-                print method.get_name()
-                if method.get_code() == None:
-                  continue
+            # code parser finds permission-using methods
+            permMethods = get_permission_access(d,dx)
 
-                print perm, method.get_class_name(), method.get_name(), method.get_descriptor()
+            # write the used permissions
+            out.write('Permissions declared in the manifest:\n')
+            out.write(str(usedPerms))
+            #print "perms actually used by app: " + str(permMethods.keys())
+            #analysis.show_Permissions(dx)
 
-                mx = vmx.get_method(method)
-                ms = decompile.DvMethod(mx)
-                # process to the decompilation
-                ms.process()
+            # write the source of accessible, permission-using methods
+            out.write('\n\nMatching methods:\n')
+            # compare lists of methods
+            for perm,methods in permMethods.items():
+                for method in methods:
+                    if method.get_name()+method.get_class_name() in openMethodsdic.keys():
+                        print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
+                        out.write('\nMATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n')
 
-                # get the source !
-                print ms.get_source()
+                        # get method source object
+                        mx = dx.get_method(openMethodsdic[method.get_name()+method.get_class_name()])
+                        ms = decompile.DvMethod(mx)
+                        # process to the decompilation
+                        ms.process()
+
+                        # get the source !
+                        out.write(ms.get_source()+'\n')
+        except:
+            print 'FAILED'
 
 if __name__ == "__main__":
    main(sys.argv[1:])
