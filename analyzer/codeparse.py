@@ -2,10 +2,11 @@
 # Finds vulnerabilites in Dalvik bytecode
 
 from androguard.core.analysis.analysis import PathP
+import permissions
 
-def get_permission_access(d,dx):
+def get_permission_access(d,dx, perms=[]):
     cm = d.get_class_manager()
-    permissions = dx.get_permissions([])
+    permissions = dx.get_permissions(perms)
     methods ={}
     for p in permissions:
         methods[p]=[]

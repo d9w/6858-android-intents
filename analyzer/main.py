@@ -2,6 +2,7 @@
 
 import sys
 import os
+import traceback
 from optparse import OptionParser
 from androlyze import *
 from permissions import *
@@ -44,53 +45,50 @@ def main(argv):
         else:
             outs = [options.output]
 
-    perms = create_perms()
     for i in range(len(apks)):
         try:
             apk = apks[i]
-            try:
-                open(outs[i])
-            except:
-                out = open(outs[i],'w')
-                print apk
-                if apk is None:
-                    print 'main.py -a <apk> -o <output> -d <directory>' # error
-                    sys.exit()
-                # analyze apk and get bytecode
-                a, d, dx = AnalyzeAPK(apk)
-                classdict = {c.get_name(): c for c in d.get_classes()}
+            out = open(outs[i],'w')
+            print apk
+            if apk is None:
+                print 'main.py -a <apk> -o <output> -d <directory>' # error
+                sys.exit()
+            # analyze apk and get bytecode
+            a, d, dx = AnalyzeAPK(apk)
+            classdict = {c.get_name(): c for c in d.get_classes()}
 
-                # xml parser finds accessible methods
-                openMethods = get_exploitable_methods(a,d, perms)
-                openMethodsdic = {m.get_name()+m.get_class_name(): m for m in openMethods}
-                usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
+            # xml parser finds accessible methods
+            perms = create_perms()
+            openMethods = get_exploitable_methods(a,d, perms)
+            openMethodsdic = {m.get_name()+m.get_class_name(): m for m in openMethods}
+            usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
 
-                # code parser finds permission-using methods
-                permMethods = get_permission_access(d,dx)
+            # code parser finds permission-using methods
+            permMethods = get_permission_access(d,dx, [k for k in perms.keys() if perms[k] >= SIG])
 
-                # write the used permissions
-                out.write('Permissions declared in the manifest:\n')
-                out.write(str(usedPerms))
-                #print "perms actually used by app: " + str(permMethods.keys())
-                #analysis.show_Permissions(dx)
+            # write the used permissions
+            out.write('Permissions declared in the manifest:\n')
+            out.write(str(usedPerms))
+            #print "perms actually used by app: " + str(permMethods.keys())
+            #analysis.show_Permissions(dx)
 
-                # write the source of accessible, permission-using methods
-                out.write('\n\nMatching methods:\n')
-                # compare lists of methods
-                for perm,methods in permMethods.items():
-                    for method in methods:
-                        if method.get_name()+method.get_class_name() in openMethodsdic.keys():
-                            print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
-                            out.write('\nMATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n')
+            # write the source of accessible, permission-using methods
+            out.write('\n\nMatching methods:\n')
+            # compare lists of methods
+            for perm,methods in permMethods.items():
+                for method in methods:
+                    if method.get_name()+method.get_class_name() in openMethodsdic.keys():
+                        print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
+                        out.write('\nMATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n')
 
-                            # get method source object
-                            mx = dx.get_method(openMethodsdic[method.get_name()+method.get_class_name()])
-                            ms = decompile.DvMethod(mx)
-                            # process to the decompilation
-                            ms.process()
+                        # get method source object
+                        mx = dx.get_method(openMethodsdic[method.get_name()+method.get_class_name()])
+                        ms = decompile.DvMethod(mx)
+                        # process to the decompilation
+                        ms.process()
 
-                            # get the source !
-                            out.write(ms.get_source()+'\n')
+                        # get the source !
+                        out.write(ms.get_source()+'\n')
         except:
             if len(apks)>1:
                 print 'FAILED'
