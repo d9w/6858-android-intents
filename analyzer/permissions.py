@@ -10,7 +10,8 @@ text2perm = {
     "normal": NORMAL,
     "dangerous": DANG,
     "signature": SIG,
-    "signatureOrSystem":SIGSYS}
+    "signatureOrSystem":SIGSYS,
+    "signature|system":SIGSYS}
 
 permissions = {
 "android.permission.ACCESS_CHECKIN_PROPERTIES":SIG,
@@ -68,7 +69,7 @@ permissions = {
 "android.permission.INJECT_EVENTS":SIG,
 "android.permission.INSTALL_LOCATION_PROVIDER":SIG,
 "android.permission.INSTALL_PACKAGES":SIG,
-"android.permission.INTERNAL_SIG,_WINDOW":SIG,
+"android.permission.INTERNAL_SYSTEM_WINDOW":SIG,
 "android.permission.INTERNET":SIG,
 "android.permission.KILL_BACKGROUND_PROCESSES":SIG,
 "android.permission.MANAGE_ACCOUNTS":SIG,
@@ -76,8 +77,8 @@ permissions = {
 "android.permission.MASTER_CLEAR":SIG,
 "android.permission.MODIFY_AUDIO_SETTINGS":SIG,
 "android.permission.MODIFY_PHONE_STATE":SIG,
-"android.permission.MOUNT_FORMAT_FILESIG,S":SIG,
-"android.permission.MOUNT_UNMOUNT_FILESIG,S":SIG,
+"android.permission.MOUNT_FORMAT_FILESYSTEMS":SIG,
+"android.permission.MOUNT_UNMOUNT_FILESYSTEMS":SIG,
 "android.permission.NFC":SIG,
 "android.permission.PERSISTENT_ACTIVITY":SIG,
 "android.permission.PROCESS_OUTGOING_CALLS":SIG,
@@ -120,7 +121,7 @@ permissions = {
 "android.permission.STATUS_BAR":SIG,
 "android.permission.SUBSCRIBED_FEEDS_READ":SIG,
 "android.permission.SUBSCRIBED_FEEDS_WRITE":SIG,
-"android.permission.SIG,_ALERT_WINDOW":SIG,
+"android.permission.SYSTEM_ALERT_WINDOW":SIG,
 "android.permission.UPDATE_DEVICE_STATS":SIG,
 "android.permission.USE_CREDENTIALS":SIG,
 "android.permission.USE_SIP":SIG,

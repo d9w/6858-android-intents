@@ -9,6 +9,13 @@ from androguard.decompiler.dad import decompile
 from androguard.core.analysis.analysis import *
 from xmlparse import get_exploitable_methods
 from codeparse import get_permission_access
+from androguard.core.bytecodes import dvm_permissions
+
+def create_perms():
+    new_perms = {}
+    for k,v in dvm_permissions.DVM_PERMISSIONS['MANIFEST_PERMISSION'].items():
+        new_perms[k] = text2perm[v[0]]
+    return new_perms
 
 def main(argv):
     apk = None
@@ -38,10 +45,11 @@ def main(argv):
     vmx = dx
 
     # pass to parsers to find vulnerabilities
-    openMethods = get_exploitable_methods(a,d, permissions)#vm.get_methods()
+    perms = create_perms()
+    openMethods = get_exploitable_methods(a,d, perms)
     usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
-    permKeys = [k.split('.')[-1] for k in permissions.keys()]
-    permMethods = get_permission_access(d,dx,permKeys)
+    permKeys = perms.keys()#[k.split('.')[-1] for k in permissions.keys()]
+    permMethods = get_permission_access(d,dx)
 
     print "perms manifest says app uses: " + str(usedPerms)
     #print "perms actually used by app: " + str(permMethods.keys())
