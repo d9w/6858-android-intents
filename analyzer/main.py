@@ -60,7 +60,7 @@ def main(argv):
             # xml parser finds accessible methods
             perms = create_perms()
             openMethods = get_exploitable_methods(a,d, perms)
-            openMethodsdic = {m.get_name()+m.get_class_name(): m for m in openMethods}
+            openMethodsdic = {m[1].get_name()+m[1].get_class_name(): m for m in openMethods}
             usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
 
             # code parser finds permission-using methods
@@ -78,17 +78,20 @@ def main(argv):
             for perm,methods in permMethods.items():
                 for method in methods:
                     if method.get_name()+method.get_class_name() in openMethodsdic.keys():
-                        print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
-                        out.write('\nMATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n')
+                        comp,meth = openMethodsdic[method.get_name()+method.get_class_name()]
+                        if perm != comp.perm:
+                            print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
+                            out.write('\nMATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n')
 
-                        # get method source object
-                        mx = dx.get_method(openMethodsdic[method.get_name()+method.get_class_name()])
-                        ms = decompile.DvMethod(mx)
-                        # process to the decompilation
-                        ms.process()
 
-                        # get the source !
-                        out.write(ms.get_source()+'\n')
+                            # get method source object
+                            mx = dx.get_method(meth)
+                            ms = decompile.DvMethod(mx)
+                            # process to the decompilation
+                            ms.process()
+
+                            # get the source !
+                            out.write(ms.get_source()+'\n')
         except:
             if len(apks)>1:
                 print 'FAILED'

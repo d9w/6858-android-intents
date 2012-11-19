@@ -128,9 +128,9 @@ def get_exploitable_methods(a, d, perms):
         # which subclasses android.appwidget.AppWidgetProvider, which is where
         # the onReceive method is implemented...
         method_objects = [m for m in c_obj.get_methods() if m.get_name() in type2methods[comp.type]]
-        exploitable_methods = exploitable_methods + method_objects
+        exploitable_methods = exploitable_methods + [(comp,m) for m in method_objects]
 
-    print [m.get_name() for m in exploitable_methods]
+    print [m[1].get_name() for m in exploitable_methods]
     # Links to check out:
     # http://developer.android.com/guide/topics/manifest/provider-element.html#gprmsn
     # http://developer.android.com/guide/topics/manifest/data-element.html
