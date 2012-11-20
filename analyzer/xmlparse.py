@@ -47,10 +47,11 @@ class Component:
         elif perm:
             self.perm = perm
         if self.perm:
-            if perms.has_key(self.perm):
-                self.perm_level = perms[self.perm]
+            perm_key = self.perm.split(".")[-1]
+            if perms.has_key(perm_key):
+                self.perm_level = perms[perm_key]
             else:
-                print "unknown perm %s" % self.perm
+                print "unknown perm %s(%s)" % (perm_key, self.perm)
                 self.perm_level = permissions.SIGSYS
 
     def __repr__(self):
@@ -102,7 +103,7 @@ def extract_perms(manifest):
             except Exception:
                 pass
             level = permissions.text2perm[attr_level]
-        new_perms[perm] = level
+        new_perms[perm.split(".")[-1]] = level
     return new_perms
 
 def get_exploitable_methods(a, d, perms):
