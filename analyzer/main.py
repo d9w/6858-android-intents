@@ -12,6 +12,16 @@ from xmlparse import get_exploitable_methods
 from codeparse import get_permission_access
 from androguard.core.bytecodes import dvm_permissions
 
+def path_search(startn,stopn):
+    if startn == stopn:
+        return True
+    if len(startn.edges) == 0:
+        return False
+    boolinit = False
+    for e in startn.edges:
+        boolinit = boolinit or path_search(e,stopn)
+    return boolinit
+
 def create_perms():
     new_perms = {}
     for k,v in dvm_permissions.DVM_PERMISSIONS['MANIFEST_PERMISSION'].items():
@@ -75,28 +85,31 @@ def main(argv):
             #print "perms actually used by app: " + str(permMethods.keys())
             #analysis.show_Permissions(dx)
 
+            # get graph for matching
+            gdx = d.CM.get_gvmanalysis()
+
             # write the source of accessible, permission-using methods
             out.write('\n\nMatching methods:\n')
             # compare lists of methods
-            for perm,methods in permMethods.items():
-                for method,inv in methods:
-                    if method.get_name()+method.get_class_name() in openMethodsdic.keys():
-                        comp,meth = openMethodsdic[method.get_name()+method.get_class_name()]
-                        if perm != comp.perm:
-                            s = "MATCH:%s %s with perm %s maps to %s with perm %s" % (perm, meth.get_name()+meth.get_class_name(), comp.perm, inv.get_name(), perm)
-                            print s
-                            #print 'MATCH: '+perm+' in '+method.get_name()+method.get_class_name()+'\n'
-                            out.write('\n%s\n' % s)
+            for comp,smethod in openMethods:
+                startn = gdx._get_node(smethod.get_class_name(), smethod.get_name(), smethod.get_descriptor())
+                for perm,methods in permMethods.items():
+                    if perm != comp.perm:
+                        for emethod,inv in methods:
+                            stopn = gdx._get_node(emethod.get_class_name(), emethod.get_name(), emethod.get_descriptor())
+                            if path_search(startn,stopn):
+                                s = "MATCH:%s %s with perm %s maps to %s with perm %s" % (perm, smethod.get_name()+smethod.get_class_name(), comp.perm, inv.get_name(), perm)
+                                print s
+                                out.write('\n%s\n' % s)
 
+                                # get method source object
+                                mx = dx.get_method(smethod)
+                                ms = decompile.DvMethod(mx)
+                                # process to the decompilation
+                                ms.process()
 
-                            # get method source object
-                            mx = dx.get_method(meth)
-                            ms = decompile.DvMethod(mx)
-                            # process to the decompilation
-                            ms.process()
-
-                            # get the source !
-                            out.write(ms.get_source()+'\n')
+                                # get the source !
+                                out.write(ms.get_source()+'\n')
         except Exception:
             if len(apks)>1:
                 print 'FAILED'
