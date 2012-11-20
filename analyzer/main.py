@@ -92,24 +92,39 @@ def main(argv):
             out.write('\n\nMatching methods:\n')
             # compare lists of methods
             for comp,smethod in openMethods:
+                printbool = False
                 startn = gdx._get_node(smethod.get_class_name(), smethod.get_name(), smethod.get_descriptor())
                 for perm,methods in permMethods.items():
                     if perm != comp.perm:
                         for emethod,inv in methods:
                             stopn = gdx._get_node(emethod.get_class_name(), emethod.get_name(), emethod.get_descriptor())
                             if path_search(startn,stopn):
+                                printbool = True
                                 s = "MATCH:%s %s with perm %s maps to %s with perm %s" % (perm, smethod.get_name()+smethod.get_class_name(), comp.perm, inv.get_name(), perm)
                                 print s
                                 out.write('\n%s\n' % s)
 
-                                # get method source object
-                                mx = dx.get_method(smethod)
-                                ms = decompile.DvMethod(mx)
-                                # process to the decompilation
-                                ms.process()
+# might want to see end method code, but emethod is a MethodIdItem, and can't
+# be used in get_method
+#                                # get method source object
+#                                mx = dx.get_method(emethod)
+#                                ms = decompile.DvMethod(mx)
+#                                # process to the decompilation
+#                                ms.process()
+#
+#                                # get the source !
+#                                out.write(ms.get_source()+'\n')
+                if printbool:
+                    # print starting method source
 
-                                # get the source !
-                                out.write(ms.get_source()+'\n')
+                    # get method source object
+                    mx = dx.get_method(smethod)
+                    ms = decompile.DvMethod(mx)
+                    # process to the decompilation
+                    ms.process()
+
+                    # get the source !
+                    out.write(ms.get_source()+'\n')
         except Exception:
             if len(apks)>1:
                 print 'FAILED'
