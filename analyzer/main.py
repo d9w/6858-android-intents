@@ -36,7 +36,7 @@ def main(argv):
             sys.exit()
         else:
             d = options.directory
-            apks = [d+'/'+f for f in os.listdir(d) if f.lower().endswith('apk')]
+            apks = [d+'/'+f for f in sorted(os.listdir(d),key=lambda x: x.lower()) if f.lower().endswith('apk')]
             outs = [f.rsplit('.',1)[0]+'.txt' for f in apks]
     else:
         apks = [options.apk]
@@ -97,7 +97,7 @@ def main(argv):
 
                             # get the source !
                             out.write(ms.get_source()+'\n')
-        except:
+        except Exception:
             if len(apks)>1:
                 print 'FAILED'
             else:

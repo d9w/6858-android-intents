@@ -47,7 +47,11 @@ class Component:
         elif perm:
             self.perm = perm
         if self.perm:
-            self.perm_level = perms[self.perm]
+            if perms.has_key(self.perm):
+                self.perm_level = perms[self.perm]
+            else:
+                print "unknown perm %s" % self.perm
+                self.perm_level = permissions.SIGSYS
 
     def __repr__(self):
         return "<"+type2tag[self.type] + " " + self.name + ">"
@@ -91,9 +95,13 @@ def extract_perms(manifest):
         perm = p.getAttribute("android:name")
         level = permissions.NORMAL
         if p.hasAttribute("android:protectionLevel"):
-            print perm
-            print p.getAttribute("android:protectionLevel")
-            level = permissions.text2perm[p.getAttribute("android:protectionLevel")]
+            attr_level = p.getAttribute("android:protectionLevel")
+            try:
+                l = str(eval(attr_level))
+                attr_level = l
+            except Exception:
+                pass
+            level = permissions.text2perm[attr_level]
         new_perms[perm] = level
     return new_perms
 
@@ -114,9 +122,10 @@ def get_exploitable_methods(a, d, perms):
             if comp.is_exploitable():
                 components.append(comp)
 
-    print components
+    #print components
 
     classes = d.get_classes()
+
     exploitable_methods = []
     for comp in components:
         c_objects = [k for k in classes if k.get_name().count(comp.path) > 0]
@@ -132,7 +141,7 @@ def get_exploitable_methods(a, d, perms):
         method_objects = [m for m in c_obj.get_methods() if m.get_name() in type2methods[comp.type]]
         exploitable_methods = exploitable_methods + [(comp,m) for m in method_objects]
 
-    print [m[1].get_name() for m in exploitable_methods]
+    #print [m[1].get_name() for m in exploitable_methods]
     # Links to check out:
     # http://developer.android.com/guide/topics/manifest/provider-element.html#gprmsn
     # http://developer.android.com/guide/topics/manifest/data-element.html
