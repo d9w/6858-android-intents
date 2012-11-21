@@ -73,9 +73,11 @@ def main(argv):
             # analyze apk and get bytecode
             a, d, dx = AnalyzeAPK(apk)
             classdict = {c.get_name(): c for c in d.get_classes()}
-            print classdict
+            #print classdict.keys()
             methoddict = {m.get_class_name()+m.get_name(): m for m in d.get_methods()}
-            print methoddict
+            #print methoddict.keys()
+
+            print [c.get_class_name() for c in d.get_methods() if c.get_class_name() not in classdict.keys()]
 
             # xml parser finds accessible methods
             perms = create_perms()
