@@ -12,15 +12,17 @@ from xmlparse import get_exploitable_methods
 from codeparse import get_permission_access
 from androguard.core.bytecodes import dvm_permissions
 
-def path_search(startn,stopn):
+def path_search(startn,stopn,trace):
     if startn == stopn:
-        return True
+        return [True,trace]
     if len(startn.edges) == 0:
-        return False
+        return [False,trace]
     boolinit = False
     for e in startn.edges:
-        boolinit = boolinit or path_search(e,stopn)
-    return boolinit
+        t = trace
+        t.append(e)
+        boolinit = boolinit or path_search(e,stopn,t)[0]
+    return [boolinit,trace]
 
 def create_perms():
     new_perms = {}
@@ -58,6 +60,12 @@ def main(argv):
     for i in range(len(apks)):
         try:
             apk = apks[i]
+            # skip completed apks
+            #try:
+            #    open(outs[i])
+            #    continue
+            #except:
+            #    pass
             print apk
             if apk is None:
                 print 'main.py -a <apk> -o <output> -d <directory>' # error
@@ -65,6 +73,9 @@ def main(argv):
             # analyze apk and get bytecode
             a, d, dx = AnalyzeAPK(apk)
             classdict = {c.get_name(): c for c in d.get_classes()}
+            print classdict
+            methoddict = {m.get_class_name()+m.get_name(): m for m in d.get_methods()}
+            print methoddict
 
             # xml parser finds accessible methods
             perms = create_perms()
@@ -92,32 +103,25 @@ def main(argv):
             out.write('\n\nMatching methods:\n')
             # compare lists of methods
             for comp,smethod in openMethods:
-                printbool = False
                 startn = gdx._get_node(smethod.get_class_name(), smethod.get_name(), smethod.get_descriptor())
                 for perm,methods in permMethods.items():
                     if perm != comp.perm:
                         for emethod,inv in methods:
                             stopn = gdx._get_node(emethod.get_class_name(), emethod.get_name(), emethod.get_descriptor())
                             try:
-                                if path_search(startn,stopn):
-                                    printbool = True
+                                path,trace = path_search(startn,stopn,[startn])
+                                if path:
                                     s = "MATCH:%s %s with perm %s maps to %s with perm %s" % (perm, smethod.get_name()+smethod.get_class_name(), comp.perm, inv.get_name(), perm)
                                     print s
                                     out.write('\n%s\n' % s)
+                                    #for node in trace:
+                                        #method lookup fails for classes with $ versions
+                                        #mx = dx.get_method(methoddict[node.class_name+node.method_name])
+                                        #ms = decompile.DvMethod(mx)
+                                        #ms.process()
+                                        #out.write(ms.get_source()+'\n')
                             except:
                                 pass # recursion depth reached, look for other matches
-
-                if printbool:
-                    # print starting method source
-
-                    # get method source object
-                    mx = dx.get_method(smethod)
-                    ms = decompile.DvMethod(mx)
-                    # process to the decompilation
-                    ms.process()
-
-                    # get the source !
-                    out.write(ms.get_source()+'\n')
         except Exception:
             if len(apks)>1:
                 print 'FAILED'
