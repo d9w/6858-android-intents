@@ -12,18 +12,6 @@ from xmlparse import get_exploitable_methods
 from codeparse import get_permission_access
 from androguard.core.bytecodes import dvm_permissions
 
-def path_search(startn,stopn,trace):
-    if startn == stopn:
-        return [True,trace]
-    if len(startn.edges) == 0:
-        return [False,trace]
-    boolinit = False
-    for e in startn.edges:
-        t = trace
-        t.append(e)
-        boolinit = boolinit or path_search(e,stopn,t)[0]
-    return [boolinit,trace]
-
 def get_reachable_exits(startn, exits):
     if startn in exits:
         return {startn:[[startn]]}
@@ -88,20 +76,15 @@ def main(argv):
                 sys.exit()
             # analyze apk and get bytecode
             a, d, dx = AnalyzeAPK(apk)
-            classdict = {c.get_name(): c for c in d.get_classes()}
-            #print classdict.keys()
-            methoddict = {m.get_class_name()+m.get_name(): m for m in d.get_methods()}
-            #print methoddict.keys()
-
-            #print [c.get_class_name() for c in d.get_methods() if c.get_class_name() not in classdict.keys()]
 
             # xml parser finds accessible methods
             perms = create_perms()
             openMethods = get_exploitable_methods(a,d, perms)
+            out = open(outs[i],'w')
             if len(openMethods) < 1:
                 print "apk has no public entry points"
+                out.write('No public entry points')
                 continue
-            out = open(outs[i],'w')
             openMethodsdic = {m[1].get_name()+m[1].get_class_name(): m for m in openMethods}
             usedPerms = [p.split('.')[-1] for p in a.get_permissions()]
 
@@ -111,13 +94,10 @@ def main(argv):
             # write the used permissions
             out.write('Permissions declared in the manifest:\n')
             out.write(str(usedPerms))
-            #print "perms actually used by app: " + str(permMethods.keys())
-            #analysis.show_Permissions(dx)
 
             # get graph for matching
             gdx = d.CM.get_gvmanalysis()
 
-            #print [n.class_name for n in gdx.nodes.values() if n.class_name not in classdict.keys()]
             # write the source of accessible, permission-using methods
             out.write('\n\nMatching methods:\n')
             # compare lists of methods
@@ -149,7 +129,6 @@ def main(argv):
                                 for node in path[:-1]:
                                     #print node.class_name+node.method_name
                                     #dx.get_tainted_packages().get_package(node.class_name).get_method(node.method_name, node.descriptor)[0].get_src(d.CM)
-                                    #node_method = methoddict[node.class_name+node.method_name]
                                     #node_method = dx.get_tainted_packages().search_methods(node.class_name,node.method_name,'.')[0].get_src(d.CM)
                                     #print [j.get_class_name() + j.get_name() for j in d.get_methods_class(node.class_name)]
                                     node_method = d.get_method_descriptor(node.class_name,node.method_name,node.descriptor)
