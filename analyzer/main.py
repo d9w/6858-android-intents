@@ -24,6 +24,22 @@ def path_search(startn,stopn,trace):
         boolinit = boolinit or path_search(e,stopn,t)[0]
     return [boolinit,trace]
 
+def get_reachable_exits(startn, exits):
+    if startn in exits:
+        return {startn:[[startn]]}
+    if len(startn.edges) == 0:
+        return {}
+    reached = {}
+    for e in startn.edges.keys():
+        traces = get_reachable_exits(e, exits)
+        for x in traces.keys():
+            updated_traces = [[startn] + tr for tr in traces[x]]
+            if x in reached.keys():
+                reached[x].extend(updated_traces)
+            else:
+                reached[x] = updated_traces
+    return reached
+
 def create_perms():
     new_perms = {}
     for k,v in dvm_permissions.DVM_PERMISSIONS['MANIFEST_PERMISSION'].items():
@@ -77,7 +93,7 @@ def main(argv):
             methoddict = {m.get_class_name()+m.get_name(): m for m in d.get_methods()}
             #print methoddict.keys()
 
-            print [c.get_class_name() for c in d.get_methods() if c.get_class_name() not in classdict.keys()]
+            #print [c.get_class_name() for c in d.get_methods() if c.get_class_name() not in classdict.keys()]
 
             # xml parser finds accessible methods
             perms = create_perms()
@@ -101,6 +117,7 @@ def main(argv):
             # get graph for matching
             gdx = d.CM.get_gvmanalysis()
 
+            #print [n.class_name for n in gdx.nodes.values() if n.class_name not in classdict.keys()]
             # write the source of accessible, permission-using methods
             out.write('\n\nMatching methods:\n')
             # compare lists of methods
@@ -108,22 +125,43 @@ def main(argv):
                 startn = gdx._get_node(smethod.get_class_name(), smethod.get_name(), smethod.get_descriptor())
                 for perm,methods in permMethods.items():
                     if perm != comp.perm:
-                        for emethod,inv in methods:
-                            stopn = gdx._get_node(emethod.get_class_name(), emethod.get_name(), emethod.get_descriptor())
-                            try:
-                                path,trace = path_search(startn,stopn,[startn])
-                                if path:
-                                    s = "MATCH:%s %s with perm %s maps to %s with perm %s" % (perm, smethod.get_name()+smethod.get_class_name(), comp.perm, inv.get_name(), perm)
-                                    print s
-                                    out.write('\n%s\n' % s)
-                                    #for node in trace:
-                                        #method lookup fails for classes with $ versions
-                                        #mx = dx.get_method(methoddict[node.class_name+node.method_name])
-                                        #ms = decompile.DvMethod(mx)
-                                        #ms.process()
-                                        #out.write(ms.get_source()+'\n')
-                            except:
-                                pass # recursion depth reached, look for other matches
+                        exits_dict = {}
+                        for m,g in methods:
+                            key = gdx._get_node(m.get_class_name(), m.get_name(), m.get_descriptor())
+                            exits_dict[key] = exits_dict.get(key,[]) + [gdx._get_node(g.get_class_name(), g.get_name(), g.get_descriptor())]
+                        try:
+                            p = get_reachable_exits(startn,exits_dict.keys())
+                        except:
+                            # reached recursion depth...
+                            continue
+                        if p:
+                            paths = []
+                            for tr in p.values():
+                                for path in tr:
+                                    for end in exits_dict[path[-1]]:
+                                        paths.append(path+[end])
+                            for path in paths:
+                                s = "pMATCH:%s %s with perm %s maps to %s with perm %s" % (perm, smethod.get_name()+smethod.get_class_name(), comp.perm, path[-1].method_name, perm)
+                                print s
+                                out.write('\n%s\n' % s)
+                                out.write('trace:' + str([z.class_name+z.method_name for z in path])+'\n')
+                                out.write('source for methods in trace:\n')
+                                for node in path[:-1]:
+                                    #print node.class_name+node.method_name
+                                    #dx.get_tainted_packages().get_package(node.class_name).get_method(node.method_name, node.descriptor)[0].get_src(d.CM)
+                                    #node_method = methoddict[node.class_name+node.method_name]
+                                    #node_method = dx.get_tainted_packages().search_methods(node.class_name,node.method_name,'.')[0].get_src(d.CM)
+                                    #print [j.get_class_name() + j.get_name() for j in d.get_methods_class(node.class_name)]
+                                    node_method = d.get_method_descriptor(node.class_name,node.method_name,node.descriptor)
+                                    #method lookup fails for start methods...
+                                    if node_method is not None:
+                                        mx = dx.get_method(node_method)
+                                        ms = decompile.DvMethod(mx)
+                                        ms.process()
+                                        #print ms.get_source()
+                                        out.write(ms.get_source()+'\n')
+                                    else:
+                                        out.write("could not find source for %s!\n"%(node.class_name+node.method_name))
         except Exception:
             if len(apks)>1:
                 print 'FAILED'

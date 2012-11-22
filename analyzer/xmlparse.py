@@ -127,6 +127,10 @@ def get_exploitable_methods(a, d, perms):
 
     classes = d.get_classes()
 
+    # Possible way of finding programmatically created receivers?
+    #[p.get_src(d.CM) for p in dx.get_tainted_packages().search_methods("content/Context","registerReceiver",".")]
+
+
     exploitable_methods = []
     for comp in components:
         c_objects = [k for k in classes if k.get_name().count(comp.path) > 0]
