@@ -1,67 +1,44 @@
-\documentclass[12pt,a4paper]{article}
-\usepackage{verbatim}
-\usepackage{listings}
-\usepackage{hyperref}
-\usepackage{url}
+\documentclass[12pt,a4paper]{article} \usepackage{verbatim}
+\usepackage{listings} \usepackage{hyperref} \usepackage{url}
 
-\begin{comment}
-Project proposal. Discuss your proposed idea with course staff over the next
-week, before the proposal deadline, to flesh out the exact problem you will be
-addressing, how you will go about doing it, and what tools you might need in the
-process. By the proposal deadline, you must submit a one-to-two-page proposal
-describing: your group members list, the problem you want to address, how you
-plan to address it, and what are you proposing to specifically design and
-implement.
+\begin{comment} 
+Write a document describing the design and implementation of your
+project, and turn it in along with your project's code by the final
+deadline.  
 \end{comment}
 
-\begin{document}
-\bibliographystyle{plain}
+\begin{document} \bibliographystyle{plain}
 
 \flushleft\textbf{Exploiting common \texttt{Intent} vulnerabilities in Android %
-applications}\\
-\today\\
+applications}\\ \today\\
 
 \paragraph{Members} ~\\
 
-Kelly Casteel, \texttt{kcasteel}\\
-Owen Derby, \texttt{oderby}\\
-Dennis Wilson, \texttt{dennisw}\\
+Kelly Casteel, \texttt{kcasteel}\\ Owen Derby, \texttt{oderby}\\ Dennis Wilson,
+\texttt{dennisw}\\
 
-\paragraph{Problem} ~\\
-The Android framework allows apps and components within apps to communicate with
-one another by passing messages, called
+\paragraph{Problem} ~\\ The Android framework allows apps and components within
+apps to communicate with one another by passing messages, called
 \href{https://developer.android.com/reference/android/content/Intent.html}{Intents},
 which specify both a procedure to call and the arguments to use. Applications
 must declare in a static manifest file which intents each component services, as
 well as both application and component level permissions. While the security
 vulnerabilities in outgoing Intents has been well studied
 \cite{chin_analyzing_2011} and developer tools exist to limit potentially
-insecure Intents, little has been done to address malicious incoming
-Intents. Exploits of this nature have been discovered in firmware of various
-Android phones \cite{grace_systematic_2012}, but exploits in third-party
-applications are not well studied. Application developers must make sure their
-manifest file has been properly configured to only accept desired Intents, which
-can limit usability. We believe that developers will trust Intent input by
-default, allowing malicious input to potentially crash or abuse the application.
+insecure Intents, little has been done to address malicious incoming Intents.
+Exploits of this nature have been discovered in firmware of various Android
+phones \cite{grace_systematic_2012}, but exploits in third-party applications
+are not well studied. Application developers must make sure their manifest file
+has been properly configured to only accept desired Intents, which can limit
+usability. We believe that developers will trust Intent input by default,
+allowing malicious input to potentially crash or abuse the application.
 
-\paragraph{Proposal} ~\\
-We plan to build a static analysis tool that will look for vulnerabilities in
-Android apps that result from bad Intent processing. This analysis tool will
-look at application use of the three Intent resolution classes, Activity,
-BroadcastReceiver, and Service, that are not protected by system or signature
-privileges. Intent input that is directly used by these classes without checking
-or sanitization will be considered a potential vulnerability. We will test our
-tool on apps found on the \href{https://play.google.com/store/apps}{Google Play}
-store and use a dissasembly tool such as baksmali \cite{baksmali} or
-Dedexer \cite{dedexer} to evaluate the application code. We will look for
-potential vulnerabilities using the proposed static analysis tool and further
-examine applications that use unchecked Intent input to access sensitive data or
-privileges.\\
+\paragraph{Static analysis} ~\\
 
-Using our static analysis tool, we plan on finding many interesting exploits
-which provide access to sensitive data or privilege escalation. We will then
-implement several of these exploits in a working, malicious application which we
-will demo for the class.
+\paragraph{Common app vulnerabilites} -\\
 
-\bibliography{proposal}
-\end{document}
+\paragraph{Exploit} -\\
+
+\paragraph{Conclusion} -\\
+
+\bibliography{writeup} \end{document}
