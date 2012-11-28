@@ -1,10 +1,10 @@
 \documentclass[12pt,a4paper]{article} \usepackage{verbatim}
 \usepackage{listings} \usepackage{hyperref} \usepackage{url}
 
-\begin{comment} 
+\begin{comment}
 Write a document describing the design and implementation of your
 project, and turn it in along with your project's code by the final
-deadline.  
+deadline.
 \end{comment}
 
 \begin{document} \bibliographystyle{plain}
@@ -14,8 +14,9 @@ applications}\\ \today\\
 
 \paragraph{Members} ~\\
 
-Kelly Casteel, \texttt{kcasteel}\\ Owen Derby, \texttt{oderby}\\ Dennis Wilson,
-\texttt{dennisw}\\
+Kelly Casteel, \texttt{kcasteel}\\
+Owen Derby, \texttt{oderby}\\
+Dennis Wilson, \texttt{dennisw}\\
 
 \paragraph{Problem} ~\\ The Android framework allows apps and components within
 apps to communicate with one another by passing messages, called
@@ -35,10 +36,26 @@ allowing malicious input to potentially crash or abuse the application.
 
 \paragraph{Static analysis} ~\\
 
-\paragraph{Common app vulnerabilites} -\\
+To start, we implemented a basic static analysis tool to aid us in identifying
+potential vulnerabilities in Android applications. Our tool operates on raw Android
+application package files. First, we extract the manifest file and compile a
+list of public components. Define public components. Then we decompile the
+Dalvik bytecodes of the application and search for method calls which require
+the app to hold Android permissions. Finally, we construct a control flow graph
+of the application and search for paths connecting our open compnents (entry
+points) to our privileged method calls (exit points), and report all paths we
+find as potential vulnerabilities. These paths represent possible
+vulnerabilities because they allow an unprivileged application to cause
+execution of privileged methods via an intent.
 
-\paragraph{Exploit} -\\
+Following the methodology outlined in Section 4.3 of \cite{chin_analyzing_2011}
+for analyzing android application components, we implemented a static
+analysis tool for detecting
 
-\paragraph{Conclusion} -\\
+\paragraph{Common app vulnerabilites} ~\\
+
+\paragraph{Exploit} ~\\
+
+\paragraph{Conclusion} ~\\
 
 \bibliography{writeup} \end{document}
