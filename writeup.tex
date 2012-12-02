@@ -37,7 +37,11 @@ allowing malicious input to potentially crash or abuse the application.
 
 \paragraph{Common app vulnerabilites} -\\
 
+The most common vulnerability was apps that would load an arbitrary URL on receiving an intent. Although the attacker cannot receive data from the internet, they can submit forms containing any data that the app had access to, or visit attacker controlled websites. The ability to force the user to visit an attacker controlled URL means that attackers can learn the IP address of any user, which is one of the factors used to determine the coarse location, which is supposed to be protected.  \\
+Interestingly, the stock Android browser will also load any URL that it receives in an intent. This means that you can force a user to visit any webpage with any cookies that they have saved. 
+
 \paragraph{Exploit} -\\
+We built an exploit to send an Intent to the browser with a URL pointing to a site we control. 
 
 \paragraph{Conclusion} -\\
 
