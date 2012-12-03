@@ -65,11 +65,11 @@ def main(argv):
         try:
             apk = apks[i]
             # skip completed apks
-            try:
-                open(outs[i])
-                continue
-            except:
-                pass
+            #try:
+            #    open(outs[i])
+            #    continue
+            #except:
+            #    pass
             print apk
             if apk is None:
                 print 'main.py -a <apk> -o <output> -d <directory>' # error
