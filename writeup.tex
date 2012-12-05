@@ -66,7 +66,7 @@ execution of privileged methods via an intent.
 None of the apps leaked sensitive information (couldn't retrieve any data with
 intents)...
 
-We looked at apps which called \texttt{get_extra}, and found very few using
+We looked at apps which called \texttt{get extra}, and found very few using
 intent data without parsing and cleaning the input...
 
 Found that app XXX sends SMS messages on behalf of the user, but takes arbitrary
@@ -79,9 +79,9 @@ safety checking it) from intent data.
 
 \paragraph{Internet Based Exploits} ~\\
 The most common vulnerability found was apps that would load an arbitrary URL on receiving an intent. Although the malicious app does not receive the response from their request, they can submit forms containing any data that the app had access to, or visit malicious websites. This has several security related implications. First, the ability to force the user to visit an attacker controlled URL means that attackers can learn the IP address of any user, which is one of the factors used to determine the coarse location, which is supposed to be protected.  \\
-Interestingly, the stock Android browser will also load any URL that it receives in an Intent. This means that any app can force the browser to visit any link using the user's cookies. This means that phishing attacks can be embedded in apps that were not supposed to have access to the internet in the first place. 
+Interestingly, the stock Android browser will also load any URL that it receives in an Intent. This means that any app can force the browser to visit any link using the user's cookies. This means that phishing attacks can be embedded in apps that were not supposed to have access to the internet in the first place.
 We built an exploit with two parts. The first part is an Android app that sends an Intent to the browser with a URL pointing to a site we control: http://purple.mit.edu... \\
-We transfer control back to the app by redirecting to URLs with a scheme we defined. Our app has an IntentFilter to listen for ActionView Intents using our custom scheme. These URLs can also be used to send data from our website to our app. 
+We transfer control back to the app by redirecting to URLs with a scheme we defined. Our app has an IntentFilter to listen for ActionView Intents using our custom scheme. These URLs can also be used to send data from our website to our app.
 
 \paragraph{Conclusion} ~\\
 
