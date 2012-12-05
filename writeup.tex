@@ -63,18 +63,21 @@ execution of privileged methods via an intent.
 
 \paragraph{Findings of analysis} ~\\
 
+Not very many interesting permissions leaked.
+
 None of the apps leaked sensitive information (couldn't retrieve any data with
 intents)...
 
-We looked at apps which called \texttt{get extra}, and found very few using
-intent data without parsing and cleaning the input...
+We looked at apps which called \texttt{get extra}, and found that many were
+properly sanitizing the intent data before using it as input, but several were
+not.
 
 Found that app XXX sends SMS messages on behalf of the user, but takes arbitrary
 intents as the text of the message...
 
 Found apps using common web framework which loaded arbitrary urls (without
 safety checking it) from intent data.
-
+x
 \paragraph{Common app vulnerabilites} ~\\
 
 \paragraph{Internet Based Exploits} ~\\
