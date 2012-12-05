@@ -1,10 +1,10 @@
 \documentclass[12pt,a4paper]{article} \usepackage{verbatim}
 \usepackage{listings} \usepackage{hyperref} \usepackage{url}
 
-\begin{comment} 
+\begin{comment}
 Write a document describing the design and implementation of your
 project, and turn it in along with your project's code by the final
-deadline.  
+deadline.
 \end{comment}
 
 \begin{document} \bibliographystyle{plain}
@@ -14,8 +14,9 @@ applications}\\ \today\\
 
 \paragraph{Members} ~\\
 
-Kelly Casteel, \texttt{kcasteel}\\ Owen Derby, \texttt{oderby}\\ Dennis Wilson,
-\texttt{dennisw}\\
+Kelly Casteel, \texttt{kcasteel}\\
+Owen Derby, \texttt{oderby}\\
+Dennis Wilson, \texttt{dennisw}\\
 
 \paragraph{Problem} ~\\ The Android framework allows apps and components within
 apps to communicate with one another by passing messages, called
@@ -35,14 +36,27 @@ allowing malicious input to potentially crash or abuse the application.
 
 \paragraph{Static analysis} ~\\
 
-\paragraph{Common app vulnerabilites} -\\
+To start, we implemented a basic static analysis tool to aid us in identifying
+potential vulnerabilities in Android applications. Our tool operates on raw Android
+application package files. First, we extract the manifest file and compile a
+list of public components. Define public components. Then we decompile the
+Dalvik bytecodes of the application and search for method calls which require
+the app to hold Android permissions. Finally, we construct a control flow graph
+of the application and search for paths connecting our open compnents (entry
+points) to our privileged method calls (exit points), and report all paths we
+find as potential vulnerabilities. These paths represent possible
+vulnerabilities because they allow an unprivileged application to cause
+execution of privileged methods via an intent.
 
-The most common vulnerability was apps that would load an arbitrary URL on receiving an intent. Although the attacker cannot receive data from the internet, they can submit forms containing any data that the app had access to, or visit attacker controlled websites. The ability to force the user to visit an attacker controlled URL means that attackers can learn the IP address of any user, which is one of the factors used to determine the coarse location, which is supposed to be protected.  \\
-Interestingly, the stock Android browser will also load any URL that it receives in an intent. This means that you can force a user to visit any webpage with any cookies that they have saved. 
+\paragraph{Common app vulnerabilities} ~\\
 
-\paragraph{Exploit} -\\
-We built an exploit to send an Intent to the browser with a URL pointing to a site we control. 
 
-\paragraph{Conclusion} -\\
+\paragraph{Internet Based Exploits} ~\\
+The most common vulnerability found was apps that would load an arbitrary URL on receiving an intent. Although the malicious app does not receive the response from their request, they can submit forms containing any data that the app had access to, or visit malicious websites. This has several security related implications. First, the ability to force the user to visit an attacker controlled URL means that attackers can learn the IP address of any user, which is one of the factors used to determine the coarse location, which is supposed to be protected.  \\
+Interestingly, the stock Android browser will also load any URL that it receives in an Intent. This means that any app can force the browser to visit any link using the user's cookies. This means that phishing attacks can be embedded in apps that were not supposed to have access to the internet in the first place. 
+We built an exploit with two parts. The first part is an Android app that sends an Intent to the browser with a URL pointing to a site we control: http://purple.mit.edu... \\
+We transfer control back to the app by redirecting to URLs with a scheme we defined. Our app has an IntentFilter to listen for ActionView Intents using our custom scheme. These URLs can also be used to send data from our website to our app. 
+
+\paragraph{Conclusion} ~\\
 
 \bibliography{writeup} \end{document}
