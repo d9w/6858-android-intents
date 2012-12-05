@@ -1,5 +1,8 @@
-\documentclass[12pt,a4paper]{article} \usepackage{verbatim}
-\usepackage{listings} \usepackage{hyperref} \usepackage{url}
+\documentclass[12pt,a4paper]{article}
+\usepackage{verbatim}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{url}
 
 \begin{comment}
 Write a document describing the design and implementation of your
@@ -7,10 +10,12 @@ project, and turn it in along with your project's code by the final
 deadline.
 \end{comment}
 
-\begin{document} \bibliographystyle{plain}
+\begin{document}
+\bibliographystyle{plain}
 
 \flushleft\textbf{Exploiting common \texttt{Intent} vulnerabilities in Android %
-applications}\\ \today\\
+applications}\\
+\today\\
 
 \paragraph{Members} ~\\
 
@@ -18,7 +23,9 @@ Kelly Casteel, \texttt{kcasteel}\\
 Owen Derby, \texttt{oderby}\\
 Dennis Wilson, \texttt{dennisw}\\
 
-\paragraph{Problem} ~\\ The Android framework allows apps and components within
+\paragraph{Problem} ~\\
+
+The Android framework allows apps and components within
 apps to communicate with one another by passing messages, called
 \href{https://developer.android.com/reference/android/content/Intent.html}{Intents},
 which specify both a procedure to call and the arguments to use. Applications
@@ -34,6 +41,12 @@ has been properly configured to only accept desired Intents, which can limit
 usability. We believe that developers will trust Intent input by default,
 allowing malicious input to potentially crash or abuse the application.
 
+\paragraph{Gathering apps for analysis} ~\\
+
+Talk about how Dennis found and downloaded the apps we looked at.
+
+We downloaded 382 apps...
+
 \paragraph{Static analysis} ~\\
 
 To start, we implemented a basic static analysis tool to aid us in identifying
@@ -48,8 +61,21 @@ find as potential vulnerabilities. These paths represent possible
 vulnerabilities because they allow an unprivileged application to cause
 execution of privileged methods via an intent.
 
-\paragraph{Common app vulnerabilities} ~\\
+\paragraph{Findings of analysis} ~\\
 
+None of the apps leaked sensitive information (couldn't retrieve any data with
+intents)...
+
+We looked at apps which called \texttt{get_extra}, and found very few using
+intent data without parsing and cleaning the input...
+
+Found that app XXX sends SMS messages on behalf of the user, but takes arbitrary
+intents as the text of the message...
+
+Found apps using common web framework which loaded arbitrary urls (without
+safety checking it) from intent data.
+
+\paragraph{Common app vulnerabilites} ~\\
 
 \paragraph{Internet Based Exploits} ~\\
 The most common vulnerability found was apps that would load an arbitrary URL on receiving an intent. Although the malicious app does not receive the response from their request, they can submit forms containing any data that the app had access to, or visit malicious websites. This has several security related implications. First, the ability to force the user to visit an attacker controlled URL means that attackers can learn the IP address of any user, which is one of the factors used to determine the coarse location, which is supposed to be protected.  \\
