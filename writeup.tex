@@ -48,14 +48,24 @@ fairly certain that some were already downloaded by a potential victim.
 \paragraph{Static analysis} ~\\
 
 To start, we implemented a basic static analysis tool to aid us in identifying
-potential vulnerabilities in Android applications. Our tool operates on raw
-Android application package files. First, we extract the manifest file and
-compile a list of public components. Define public components. Then we decompile
-the Dalvik bytecodes of the application and search for method calls which
-require the app to hold Android permissions. Finally, we construct a control
-flow graph of the application and search for paths connecting our open compnents
-(entry points) to our privileged method calls (exit points), and report all
-paths we find as potential vulnerabilities. These paths represent possible
+potential vulnerabilities in Android applications. We built our tool using
+Androguard \cite{androguard}, a python FOS library written ``to play with''
+Android applications.
+
+Our tool operates on raw Android application package files (``apk'' for short),
+are compiled archives of all code required to load and run the application. We
+use the apk files in order to analyze both open- and non-open-source
+applications. First, we extract the manifest file from the apk and compile a
+list of public components exported by the app. A component is public depending
+on whether it defines an intent filter and what value it sets to the
+``exported'' attribute.
+
+Define public components. Then we decompile the
+Dalvik bytecodes of the application and search for method calls which require
+the app to hold Android permissions. Finally, we construct a control flow graph
+of the application and search for paths connecting our open compnents (entry
+points) to our privileged method calls (exit points), and report all paths we
+find as potential vulnerabilities. These paths represent possible
 vulnerabilities because they allow an unprivileged application to cause
 execution of privileged methods via an intent.
 

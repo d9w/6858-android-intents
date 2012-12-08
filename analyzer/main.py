@@ -92,7 +92,7 @@ def main(argv):
             # code parser finds permission-using methods
             permMethods = get_permission_access(d,dx, [k for k in perms.keys() if perms[k] >= DANG])
             print "found %d protected exits" % (sum([len(p) for p in permMethods.values()]))
-            print [m.get_class_name() + m.get_name() + m.get_descriptor() for m,g in permMethods["INTERNET"]]
+            #print [m.get_class_name() + m.get_name() + m.get_descriptor() for m,g in permMethods["INTERNET"]]
             # write the used permissions
             out.write('Permissions declared in the manifest:\n')
             out.write(str(usedPerms))

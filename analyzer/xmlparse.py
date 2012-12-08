@@ -58,9 +58,9 @@ class Component:
         return "<"+type2tag[self.type] + " " + self.name + ">"
 
     def is_public(self):
-        exported_set = False
+        exported_set = self.element.hasAttribute("android:exported")
         exported = False
-        if self.element.hasAttribute("android:exported"):
+        if exported_set:
             exported = self.element.getAttribute("android:exported") == "true"
         has_filter = False
         if self.element.hasChildNodes():
