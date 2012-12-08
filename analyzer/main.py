@@ -80,6 +80,7 @@ def main(argv):
             # xml parser finds accessible methods
             perms = create_perms()
             openMethods = get_exploitable_methods(a,d, perms)
+            print "found %d open methods" % (len(openMethods))
             out = open(outs[i],'w')
             if len(openMethods) < 1:
                 print "apk has no public entry points"
@@ -90,7 +91,8 @@ def main(argv):
 
             # code parser finds permission-using methods
             permMethods = get_permission_access(d,dx, [k for k in perms.keys() if perms[k] >= DANG])
-
+            print "found %d protected exits" % (sum([len(p) for p in permMethods.values()]))
+            print [m.get_class_name() + m.get_name() + m.get_descriptor() for m,g in permMethods["INTERNET"]]
             # write the used permissions
             out.write('Permissions declared in the manifest:\n')
             out.write(str(usedPerms))

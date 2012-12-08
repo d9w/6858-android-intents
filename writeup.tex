@@ -1,32 +1,24 @@
-\documentclass[12pt,a4paper]{article}
-\usepackage{verbatim}
-\usepackage{listings}
-\usepackage{hyperref}
-\usepackage{url}
+\documentclass[12pt,a4paper]{article} \usepackage{verbatim}
+\usepackage{listings} \usepackage{hyperref} \usepackage{url}
 
-\begin{comment}
-Write a document describing the design and implementation of your
-project, and turn it in along with your project's code by the final
-deadline.
-\end{comment}
+\begin{comment} Write a document describing the design and implementation of
+your project, and turn it in along with your project's code by the final
+deadline.  \end{comment}
 
-\begin{document}
-\bibliographystyle{plain}
+\begin{document} \bibliographystyle{plain}
 
 \flushleft\textbf{Exploiting common \texttt{Intent} vulnerabilities in Android %
-applications}\\
-\today\\
+applications}\\ \today\\
 
 \paragraph{Members} ~\\
 
-Kelly Casteel, \texttt{kcasteel}\\
-Owen Derby, \texttt{oderby}\\
-Dennis Wilson, \texttt{dennisw}\\
+Kelly Casteel, \texttt{kcasteel}\\ Owen Derby, \texttt{oderby}\\ Dennis Wilson,
+\texttt{dennisw}\\
 
 \paragraph{Problem} ~\\
 
-The Android framework allows apps and components within
-apps to communicate with one another by passing messages, called
+The Android framework allows apps and components within apps to communicate with
+one another by passing messages, called
 \href{https://developer.android.com/reference/android/content/Intent.html}{Intents},
 which specify both a procedure to call and the arguments to use. Applications
 must declare in a static manifest file which intents each component services, as
@@ -43,46 +35,80 @@ allowing malicious input to potentially crash or abuse the application.
 
 \paragraph{Gathering apps for analysis} ~\\
 
-Talk about how Dennis found and downloaded the apps we looked at.
-
-We downloaded 382 apps...
+We downloaded 382 applications as apk files using Real Apk Leecher
+\cite{apkleecher}, a utility we found online. This connects to Google Play to
+get applications, so all results were verified applications in the Android
+market. Various keywords for potential interesting attack vectors, such as
+'camera,' 'contacts,' 'sms,' and more were used to search for applications. The
+free applications from the top 60 search results, sorted by application
+popularity, for each keyword were downloaded for analysis. This ensured that the
+applications were popular and currently used applications; the attacker could be
+fairly certain that some were already downloaded by a potential victim.
 
 \paragraph{Static analysis} ~\\
 
 To start, we implemented a basic static analysis tool to aid us in identifying
-potential vulnerabilities in Android applications. Our tool operates on raw Android
-application package files. First, we extract the manifest file and compile a
-list of public components. Define public components. Then we decompile the
-Dalvik bytecodes of the application and search for method calls which require
-the app to hold Android permissions. Finally, we construct a control flow graph
-of the application and search for paths connecting our open compnents (entry
-points) to our privileged method calls (exit points), and report all paths we
-find as potential vulnerabilities. These paths represent possible
+potential vulnerabilities in Android applications. Our tool operates on raw
+Android application package files. First, we extract the manifest file and
+compile a list of public components. Define public components. Then we decompile
+the Dalvik bytecodes of the application and search for method calls which
+require the app to hold Android permissions. Finally, we construct a control
+flow graph of the application and search for paths connecting our open compnents
+(entry points) to our privileged method calls (exit points), and report all
+paths we find as potential vulnerabilities. These paths represent possible
 vulnerabilities because they allow an unprivileged application to cause
 execution of privileged methods via an intent.
 
 \paragraph{Findings of analysis} ~\\
 
+The permissions most commonly leaked were mostly the permissions most commonly
+declared in manifest files. Either INTERNET, READ\_PHONE\_STATE, or
+ACCESS\_FINE\_LOCATION were leaked in 113 of 383 applications. While exploits
+are possible based on these permissions, the more active permissions, such as
+CAMERA or SEND\_SMS, were much less frequently exposed. The correlation between
+exposed permissions and common ones, seen below as the percent of vulnerable
+permissions to declared ones, suggests that developers don't consider the
+security risks of the common permissions. Users are also probably more willing
+to simply allow an app to have these permissions.
+
+The following 252 vulnerabilites were found by the static analysis tool.
+
+\input{stats}
+
 None of the apps leaked sensitive information (couldn't retrieve any data with
 intents)...
 
-We looked at apps which called \texttt{get_extra}, and found very few using
-intent data without parsing and cleaning the input...
-
-Found that app XXX sends SMS messages on behalf of the user, but takes arbitrary
-intents as the text of the message...
+We looked at apps which called \texttt{get.*Extra}, being any of the Android
+intent data extraction calls like getBundleExtra, getCharArrayExtra,
+getIntExtra, etc, and found that many were properly sanitizing the input, but
+some were not. An example is Vault Hide SMS, Pics \& Videos, an app that allows
+users to store SMS messages, contacts, call logs, photos, and videos in a
+password-protected and encrypted space. This app leaks the permissions
+GET\_TASKS, INTERNET, READ\_PHONE\_STATE, CHANGE\_COMPONENT\_ENABLED\_STATE, and
+SEND\_SMS. The message sender gets number information from the user and message
+data from an intent, allowing an attacker to send arbitrary text in place of the
+user's original message. While the user still enters the number and knows that
+the text message is being sent, this could be an effective SMS spamming
+mechanism.
 
 Found apps using common web framework which loaded arbitrary urls (without
-safety checking it) from intent data.
+safety checking it) from intent data.  y
 
-\paragraph{Common app vulnerabilites} ~\\
+\paragraph{Internet Based Exploits} ~\\ The most common vulnerability found was
+apps that would load an arbitrary URL on receiving an intent. Although the
+malicious app does not receive the response from their request, they can submit
+forms containing any data that the app had access to, or visit malicious
+websites. This has several security related implications. First, the ability to
+force the user to visit an attacker controlled URL means that attackers can
+learn the IP address of any user, which is one of the factors used to determine
+the coarse location, which is supposed to be protected.  \\ Interestingly, the
+stock Android browser will also load any URL that it receives in an Intent. This
+means that any app can force the browser to visit any link using the user's
+cookies. This means that phishing attacks can be embedded in apps that were not
+supposed to have access to the internet in the first place. 
 
-\paragraph{Internet Based Exploits} ~\\
-The most common vulnerability found was apps that would load an arbitrary URL on receiving an intent. Although the malicious app does not receive the response from their request, they can submit forms containing any data that the app had access to, or visit malicious websites. This has several security related implications. First, the ability to force the user to visit an attacker controlled URL means that attackers can learn the IP address of any user, which is one of the factors used to determine the coarse location, which is supposed to be protected.  \\
-Interestingly, the stock Android browser will also load any URL that it receives in an Intent. This means that any app can force the browser to visit any link using the user's cookies. This means that phishing attacks can be embedded in apps that were not supposed to have access to the internet in the first place. 
 \paragraph{Example Exploit} ~\\
-To demonstrate our exploit, we built a malicious app called PrivacyCameraNotMalware. Our app is advertised as an app that allows you to take pictures and save them in the app's private storage rather than on the SD card so that the pictures will not be available to other apps. The only permission requested by our app is permission to use the camera. 
-We transfer control back to the app by redirecting to URLs with a scheme we defined. Our app has an IntentFilter to listen for ActionView Intents using our custom scheme. These URLs can also be used to send data from our website to our app. 
+We built an exploit to demonstrate the vulnerability we found in the Android browser. We developed a 
 
 \paragraph{Conclusion} ~\\
 
