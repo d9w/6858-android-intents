@@ -108,7 +108,7 @@ cookies. This means that phishing attacks can be embedded in apps that were not
 supposed to have access to the internet in the first place. 
 
 \paragraph{Example Exploit} ~\\
-We built an exploit to demonstrate the vulnerability we found in the Android browser. We developed a 
+We built an exploit to demonstrate the vulnerability we found in the Android browser. We developed an app that appears to the users to be a private diary. It does not request any permissions. However, when the user tries to save the diary entry, the app URL encodes the entry and uses the browser to submit it to a website we control. If the user has a login cookie saved for the zoobar website, our website changes the user's zoobar profile to the diary entry along with a timestamp and the user's IP address. 
 
 \paragraph{Conclusion} ~\\
 
