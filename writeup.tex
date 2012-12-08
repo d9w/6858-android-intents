@@ -48,7 +48,7 @@ fairly certain that some were already downloaded by a potential victim.
 \paragraph{Static analysis} ~\\
 
 To start, we implemented a basic static analysis tool to aid us in identifying
-potential vulnerabilities in Android applications. We built our tool using
+potential vulnerabilities in Android applications. The tool, which is similar to the one built by Grace, et al. \cite{grace_systematic_2012} traces through the control flow graph of the apps to see if there are paths between publicly accessible methods and permission uses. We built our tool using
 Androguard \cite{androguard}, a python FOS library written ``to play with''
 Android applications. Our tool implements the component analysis strategy from
 \cite{chin_analyzing_2011} (see section 4.3) to detect public components and
