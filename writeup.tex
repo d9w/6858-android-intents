@@ -104,10 +104,6 @@ mechanism.
 Found apps using common web framework which loaded arbitrary urls (without
 safety checking it) from intent data.  y
 
-\paragraph{Common app vulnerabilites} ~\\
-
-%I think this is already addressed above - dennis
-
 \paragraph{Internet Based Exploits} ~\\ The most common vulnerability found was
 apps that would load an arbitrary URL on receiving an intent. Although the
 malicious app does not receive the response from their request, they can submit
@@ -119,13 +115,10 @@ the coarse location, which is supposed to be protected.  \\ Interestingly, the
 stock Android browser will also load any URL that it receives in an Intent. This
 means that any app can force the browser to visit any link using the user's
 cookies. This means that phishing attacks can be embedded in apps that were not
-supposed to have access to the internet in the first place.  We built an exploit
-with two parts. The first part is an Android app that sends an Intent to the
-browser with a URL pointing to a site we control: http://purple.mit.edu... \\ We
-transfer control back to the app by redirecting to URLs with a scheme we
-defined. Our app has an IntentFilter to listen for ActionView Intents using our
-custom scheme. These URLs can also be used to send data from our website to our
-app.
+supposed to have access to the internet in the first place. 
+
+\paragraph{Example Exploit} ~\\
+We built an exploit to demonstrate the vulnerability we found in the Android browser. We developed an app that appears to the users to be a private diary. It does not request any permissions. However, when the user tries to save the diary entry, the app URL encodes the entry and uses the browser to submit it to a website we control. If the user has a login cookie saved for the zoobar website, our website changes the user's zoobar profile to the diary entry along with a timestamp and the user's IP address. 
 
 \paragraph{Conclusion} ~\\
 
