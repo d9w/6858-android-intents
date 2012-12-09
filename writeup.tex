@@ -1,24 +1,25 @@
-\documentclass[12pt,a4paper]{article} 
+\documentclass[12pt,a4paper]{article}
 \usepackage{verbatim}
-\usepackage{listings} 
-\usepackage{hyperref} 
+\usepackage{listings}
+\usepackage{hyperref}
 \usepackage{url}
 \usepackage{caption}
+\usepackage{fullpage}
 \captionsetup{font=small,justification=centering}
 
 \begin{comment} Write a document describing the design and implementation of
 your project, and turn it in along with your project's code by the final
 deadline.  \end{comment}
 
+\title{Exploiting common \texttt{Intent} vulnerabilities in Android %
+applications}
+\date{\today}
+\author{Kelly Casteel, \texttt{kcasteel}\\ Owen Derby, \texttt{oderby}\\ Dennis Wilson,
+\texttt{dennisw}}
+
 \begin{document} \bibliographystyle{plain}
 
-\flushleft\textbf{Exploiting common \texttt{Intent} vulnerabilities in Android %
-applications}\\ \today\\
-
-\paragraph{Members} ~\\
-
-Kelly Casteel, \texttt{kcasteel}\\ Owen Derby, \texttt{oderby}\\ Dennis Wilson,
-\texttt{dennisw}\\
+\maketitle
 
 \paragraph{Problem} ~\\
 
@@ -105,11 +106,11 @@ to simply allow an app to have these permissions.
 \caption{Permission use and leakage}
 \input{stats}
 \caption*{Android permissions leaked in the analyzed applicatons. Use indicates
-	the number of applications that declared the permission in their
-	manifest, and Vulnerabilites indicates the number of applications that
-	exposed the permission.  Permissions that were declared but not exposed
-	are not shown. Signature or system permissions are in bold, all others
-are danerous.}
+  the number of applications that declared the permission in their
+  manifest, and Vulnerabilites indicates the number of applications that
+  exposed the permission.  Permissions that were declared but not exposed
+  are not shown. Signature or system permissions are in bold, all others
+  are danerous.}
 \end{table}
 None of the apps leaked sensitive information (couldn't retrieve any data with
 intents)...
