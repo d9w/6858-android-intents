@@ -79,17 +79,22 @@ to require a certain permission to access each component, so we only reported
 public, exported components which had permissions of level dangerous or normal.
 
 After determining all open components, we need to identify all privileged calls
-made by the application. We decompile the source code in the apk and search for
-method calls which require the app to hold Android permissions with level
-dangerous or signature. The mapping from method calls to required permissions is
-derived from work in \cite{lu_chex_2012}.
+made by the application. A privileged call is a method call which the Android OS
+requires the calling application to hold a permission in order to execute
+the call. The mapping from method calls to required permissions is
+derived from work in \cite{felt_android_2011}. Using this mapping and the
+decompiled source code in the apk, we search for privileged calls with
+permission levels of dangerous or signature.
 
-Finally, we construct a control flow graph of the application and search for
-paths connecting our open compnents (entry points) to our privileged method
-calls (exit points), and report all paths we find as potential
-vulnerabilities. These paths represent possible vulnerabilities because they
-allow an unprivileged application to cause execution of privileged methods via
-an intent.
+Finally, we construct a control flow graph of the application and search for any
+paths of execution leading from an open component to a privileged call. We
+report any such path found as a potential vulnerability in the analyzed
+application. These paths represent possible vulnerabilities because they allow
+an unprivileged application to cause execution of privileged methods via an
+intent.
+
+Discuss how we can't find all vulnerabilities, and may vulnerabilities we find
+don't lead to real vulnerabilities in practice.
 
 \paragraph{Findings of analysis} ~\\
 
