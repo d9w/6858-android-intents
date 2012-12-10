@@ -168,16 +168,20 @@ safety checking it) from Intent data.
 \paragraph{Internet Based Exploits} ~\\ 
 
 The most common vulnerability found was apps that would load an arbitrary URL on
-receiving an Intent. Although the malicious app does not receive the response
-from their request, they can submit forms containing any data that the app had
-access to as well as visit malicious websites. This has several security
-related
-implications. First, it allows the attacker to exfiltrate data from the app
-that the user believed would be private. Also, the ability to force the user to
-visit an attacker
-controlled URL means that attackers can learn the IP address of any user, which
-is one of the factors used to determine the coarse location, which is supposed
-to be protected.  \\ 
+receiving an Intent. We found two apps, Jazz Internet Radio and
+Sky.FM, both of which import CatalogActivity from the Flurry library, which
+will load any URL sent to it in an Intent. Although a malicious app that
+exploits these apps does not receive the response from the request, the app can
+submit forms containing any data that the app had access to as well as visit
+malicious websites. This has several security related implications. First, it
+allows the attacker to exfiltrate data from the app that the user believed would
+be used only by the application. Users may be less careful about giving
+sensitive data to apps that they believe do not have access to the internet.
+Also, a malcious app could connect to an ad server and generate
+fraudulent ad clicks, while potentially depleting the user's data plan.
+Finally, the ability to force the user to visit an attacker controlled URL means
+that attackers can learn the IP address of any user, which is one of the factors
+used to determine the coarse location, which is supposed to be protected.  \\ 
 Interestingly, the stock Android browser will also load any URL that it receives
 in an Intent. This means that any app can force the browser to visit any link
 using the user's cookies. This means that phishing attacks can be embedded in
