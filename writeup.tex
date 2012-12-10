@@ -169,7 +169,8 @@ mechanism.
 Found apps using common web framework which loaded arbitrary urls (without
 safety checking it) from intent data.
 
-\paragraph{Internet Based Exploits} ~\\ 
+\paragraph{Internet Based Exploits} ~\\
+
 The most common vulnerability found was apps that would load an arbitrary URL on
 receiving an intent. Although the malicious app does not receive the response
 from their request, they can submit forms containing any data that the app had
@@ -177,13 +178,15 @@ access to, or visit malicious websites. This has several security related
 implications. First, the ability to force the user to visit an attacker
 controlled URL means that attackers can learn the IP address of any user, which
 is one of the factors used to determine the coarse location, which is supposed
-to be protected.  \\ 
+to be protected.
+
 Interestingly, the stock Android browser will also load any URL that it receives
 in an Intent. This means that any app can force the browser to visit any link
 using the user's cookies. This means that phishing attacks can be embedded in
 apps that were not supposed to have access to the internet in the first place.
 
 \paragraph{Example Exploit} ~\\
+
 We built an exploit to demonstrate the vulnerability we found in the Android
 browser. We developed an app that appears to the users to be a private diary. It
 does not request any permissions. However, when the user tries to save the diary
