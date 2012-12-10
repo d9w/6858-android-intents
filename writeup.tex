@@ -22,12 +22,11 @@ applications}
 \maketitle
 
 \paragraph{Problem} ~\\
-
 The Android framework allows apps and components within apps to communicate with
 one another by passing messages, called
 \href{https://developer.android.com/reference/android/content/Intent.html}{Intents},
 which effectively specify both a procedure to call and the arguments to
-use. Applications must declare in a static manifest file which intents each
+use. Applications must declare in a static manifest file which Intents each
 component services, as well as both application and component level
 permissions. While the security vulnerabilities in outgoing Intents has been
 well studied \cite{chin_analyzing_2011} and developer tools exist to limit
@@ -41,11 +40,10 @@ developers will trust Intent input by default, allowing malicious input to
 potentially crash or abuse the application.
 
 Our work is twofold: we developed a static analysis tool to inspect third party
-applications for malicious intent vulnerabilities, and we built a working
+applications for malicious Intent vulnerabilities, and we built a working
 exploit which takes advantage of such a vulnerability.
 
 \paragraph{Static analysis} ~\\
-
 To start, we implemented a basic static analysis tool to aid us in identifying
 potential vulnerabilities in Android applications. We are not the first to look
 at such vulnerabilities (\cite{chin_analyzing_2011}), nor to build such a tool
@@ -68,7 +66,7 @@ work went into understanding how to use the library (it has minimal
 documentation...) and coercing it into doing what we wanted.
 
 The tool examines execution traces through an application, looking for places
-where malicious intents might cause the program to unintentionally perform
+where malicious Intents might cause the program to unintentionally perform
 privileged actions. We implement the component analysis strategy from
 \cite{chin_analyzing_2011} (see section 4.3) to detect public components. We
 also identify privileged calls (\cite{felt_android_2011}) made by the
@@ -80,7 +78,7 @@ to analyze both open- and non-open-source application.
 
 First, we extract the manifest file from the apk and compile a list of ``open''
 components: public components, protected by weak or no permissions which are
-exported by the app. A component is public if the manifest specifies an intent
+exported by the app. A component is public if the manifest specifies an Intent
 filter for it. However, components can override this behavior by setting the
 ``exported'' attribute to \texttt{false}. Next, we check for any permissions
 protecting the component. Developers can also set the ``permission'' attribute
@@ -100,7 +98,7 @@ paths of execution leading from an open component to a privileged call. We
 report any such path found as a potential vulnerability in the analyzed
 application. These paths represent possible vulnerabilities because they allow
 an unprivileged application to cause execution of privileged methods via an
-intent.
+Intent.
 
 Here we quickly discuss the limitations of our tool. Because our intention was
 to quickly discover many vulnerabilities in 3rd party applications, but not
@@ -117,12 +115,11 @@ interesting. Many of the applications flagged by our tool had this sort of
 ``harmless'' vulnerability.
 
 \paragraph{Gathering apps for analysis} ~\\
-
 We downloaded 382 applications as application package files (``apk'' for short)
 files using Real Apk Leecher \cite{apkleecher}, a utility we found online. This
 connects to Google Play to get applications, so all results were verified
 applications in the Android market. Various keywords for potential interesting
-attack vectors, such as 'camera,' 'contacts,' 'sms,' and more were used to
+attack vectors, such as ``camera,'' ``contacts,'' ``sms,'' and more were used to
 search for applications. The free applications from the top 60 search results,
 sorted by application popularity, for each keyword were downloaded for analysis.
 This ensured that the applications were popular and currently used applications;
@@ -130,7 +127,6 @@ the attacker could be fairly certain that some were already downloaded by a
 potential victim.
 
 \paragraph{Findings of analysis} ~\\
-
 The permissions most commonly leaked were mostly the permissions most commonly
 declared in manifest files. Either INTERNET, READ\_PHONE\_STATE, or
 ACCESS\_FINE\_LOCATION were leaked in 113 of 383 applications. While exploits
@@ -151,28 +147,28 @@ to simply allow an app to have these permissions.
   are danerous.}
 \end{table}
 None of the apps leaked sensitive information (couldn't retrieve any data with
-intents)...
+Intents)...
 
 We looked at apps which called \texttt{get.*Extra}, being any of the Android
-intent data extraction calls like getBundleExtra, getCharArrayExtra,
+Intent data extraction calls like getBundleExtra, getCharArrayExtra,
 getIntExtra, etc, and found that many were properly sanitizing the input, but
 some were not. An example is Vault Hide SMS, Pics \& Videos, an app that allows
 users to store SMS messages, contacts, call logs, photos, and videos in a
 password-protected and encrypted space. This app leaks the permissions
 GET\_TASKS, INTERNET, READ\_PHONE\_STATE, CHANGE\_COMPONENT\_ENABLED\_STATE, and
 SEND\_SMS. The message sender gets number information from the user and message
-data from an intent, allowing an attacker to send arbitrary text in place of the
+data from an Intent, allowing an attacker to send arbitrary text in place of the
 user's original message. While the user still enters the number and knows that
 the text message is being sent, this could be an effective SMS spamming
 mechanism.
 
 Found apps using common web framework which loaded arbitrary urls (without
-safety checking it) from intent data.
+safety checking it) from Intent data.
 
 \paragraph{Internet Based Exploits} ~\\
 
 The most common vulnerability found was apps that would load an arbitrary URL on
-receiving an intent. Although the malicious app does not receive the response
+receiving an Intent. Although the malicious app does not receive the response
 from their request, they can submit forms containing any data that the app had
 access to, or visit malicious websites. This has several security related
 implications. First, the ability to force the user to visit an attacker
@@ -199,5 +195,4 @@ Intent filter catches Intents of that specific URI scheme (\texttt{malware://})
 and returns control to the application.
 
 \paragraph{Conclusion} ~\\
-
 \bibliography{writeup} \end{document}
