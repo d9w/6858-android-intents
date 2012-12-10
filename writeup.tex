@@ -14,8 +14,8 @@ deadline.  \end{comment}
 \title{Exploiting common \texttt{Intent} vulnerabilities in Android %
 applications}
 \date{\today}
-\author{Kelly Casteel, \texttt{kcasteel}\\ Owen Derby, \texttt{oderby}\\ Dennis Wilson,
-\texttt{dennisw}}
+\author{Kelly Casteel, \texttt{kcasteel}\\Owen Derby, \texttt{oderby}\\Dennis
+ Wilson, \texttt{dennisw}}
 
 \begin{document} \bibliographystyle{plain}
 
@@ -102,8 +102,19 @@ application. These paths represent possible vulnerabilities because they allow
 an unprivileged application to cause execution of privileged methods via an
 intent.
 
-Discuss how we can't find all vulnerabilities, and may vulnerabilities we find
-don't lead to real vulnerabilities in practice.
+Here we quickly discuss the limitations of our tool. Because our intention was
+to quickly discover many vulnerabilities in 3rd party applications, but not
+exhaustively so, we did not handle discontinuities in the control flow graph
+resulting from callbacks (see 2.1.1 in \cite{grace_systematic_2012}). This means
+there are possibly many more vulnerabilities in the applications we examined
+that what we reported. Further, because Android many non-harmful methods still
+require permissions, there are a lot of ``vulnerabilities'' identified which are
+not very harmful in practice. For example,
+\href{https://developer.android.com/reference/android/telephony/PhoneNumberUtils.html#getNumberFromIntent\%28android.content.Intent,\%20android.content.Context\%29}{getNumberFromIntent}
+ requires permission CALL\_PRIVILEGED. However, without any additional
+ vulnerabilities in the application, such privileged call is not very
+ interesting. Many of the applications flagged by our tool had this sort of
+ ``harmless'' vulnerability.
 
 \paragraph{Gathering apps for analysis} ~\\
 
