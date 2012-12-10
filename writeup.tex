@@ -22,7 +22,6 @@ applications}
 \maketitle
 
 \paragraph{Problem} ~\\
-
 The Android framework allows apps and components within apps to communicate with
 one another by passing messages, called
 \href{https://developer.android.com/reference/android/content/Intent.html}{Intents},
@@ -45,7 +44,6 @@ applications for malicious Intent vulnerabilities, and we built a working
 exploit which takes advantage of such a vulnerability.
 
 \paragraph{Static analysis} ~\\
-
 To start, we implemented a basic static analysis tool to aid us in identifying
 potential vulnerabilities in Android applications. We are not the first to look
 at such vulnerabilities (\cite{chin_analyzing_2011}), nor to build such a tool
@@ -117,12 +115,11 @@ interesting. Many of the applications flagged by our tool had this sort of
 ``harmless'' vulnerability.
 
 \paragraph{Gathering apps for analysis} ~\\
-
 We downloaded 382 applications as application package files (``apk'' for short)
 files using Real Apk Leecher \cite{apkleecher}, a utility we found online. This
 connects to Google Play to get applications, so all results were verified
 applications in the Android market. Various keywords for potential interesting
-attack vectors, such as 'camera,' 'contacts,' 'sms,' and more were used to
+attack vectors, such as ``camera,'' ``contacts,'' ``sms,'' and more were used to
 search for applications. The free applications from the top 60 search results,
 sorted by application popularity, for each keyword were downloaded for analysis.
 This ensured that the applications were popular and currently used applications;
@@ -130,7 +127,6 @@ the attacker could be fairly certain that some were already downloaded by a
 potential victim.
 
 \paragraph{Findings of analysis} ~\\
-
 The permissions most commonly leaked were mostly the permissions most commonly
 declared in manifest files. Either INTERNET, READ\_PHONE\_STATE, or
 ACCESS\_FINE\_LOCATION were leaked in 113 of 383 applications. While exploits
@@ -201,5 +197,4 @@ Intent filter catches Intents of that specific URI scheme (\texttt{malware://})
 and returns control to the application.
 
 \paragraph{Conclusion} ~\\
-
 \bibliography{writeup} \end{document}
