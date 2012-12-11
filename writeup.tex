@@ -58,13 +58,13 @@ details.
 We built our tool using Androguard \cite{androguard}, a python FOS library
 written ``to play with'' Android applications. Androguard is a library built, in
 part, to support creation of static analysis tools for the Android platform - it
-supports disassembly and decompilation of apks into Java-approximate source code
-(it doesn't recompile, but it is very nearly complete) for human-readability, as
-well as intermediate basic blocks for static analysis and control-flow graph
-creation. It provides basic search functionality over the decompiled basic
-blocks. Despite this long list of features, a lot of work went into
-understanding how to use the library (it has minimal documentation...) and
-coercing it into doing what we wanted.
+supports disassembly and decompilation of apks, Android applications packages,
+into Java-approximate source code (it doesn't recompile, but it is very nearly
+complete) for human-readability, as well as intermediate basic blocks for static
+analysis and control-flow graph creation. It provides basic search functionality
+over the decompiled basic blocks. Despite this long list of features, a lot of
+work went into understanding how to use the library (it has minimal
+documentation) and coercing it into doing what we wanted.
 
 The tool examines execution traces through an application, looking for places
 where malicious Intents might cause the program to unintentionally perform
@@ -73,8 +73,7 @@ privileged actions. We implement the component analysis strategy from
 also identify privileged calls made by the application
 \cite{felt_android_2011}. Then we use a control flow graph of the program to
 determine which public components lead to privileged calls, which represent
-potential vulnerabilities. Our tool operates on raw Android apks, the compiled
-archives of all code required to load and run the application. We use the apk
+potential vulnerabilities. Our tool operates on raw Android apks. We use the apk
 files in order to analyze both open- and non-open-source application.
 
 First, we extract the manifest file from the apk and compile a list of ``open''
@@ -116,21 +115,21 @@ interesting. Many of the applications flagged by our tool had this sort of
 ``harmless'' vulnerability.
 
 \paragraph{Gathering apps for analysis} ~\\
-We downloaded 382 applications as application package files (``apk'' for short)
-files using Real Apk Leecher \cite{apkleecher}, a utility we found online. This
-connects to Google Play to get applications, so all results were verified
-applications in the Android market. Various keywords for potential interesting
-attack vectors, such as ``camera,'' ``contacts,'' ``sms,'' and more were used to
-search for applications. The free applications from the top 60 search results,
-sorted by application popularity, for each keyword were downloaded for analysis.
-This ensured that the applications were popular and currently used applications;
-the attacker could be fairly certain that some were already downloaded by a
+We downloaded 382 applications as apk files using Real Apk Leecher
+\cite{apkleecher}, a utility we found online. This connects to Google Play to
+get applications, so all results were verified applications in the Android
+market. Various keywords for potential interesting attack vectors, such as
+``camera,'' ``contacts,'' ``sms,'' and more were used to search for
+applications. The free applications from the top 60 search results, sorted by
+application popularity, for each keyword were downloaded for analysis.  This
+ensured that the applications were popular and currently used applications; the
+attacker could be fairly certain that some were already downloaded by a
 potential victim.
 
 \paragraph{Findings of analysis} ~\\
 The permissions most commonly leaked were mostly the permissions most commonly
 declared in manifest files. Either INTERNET, READ\_PHONE\_STATE, or\\
-ACCESS\_FINE\_LOCATION were leaked in 113 of 383 applications. While exploits
+ACCESS\_FINE\_LOCATION were leaked in 113 of 382 applications. While exploits
 are possible based on these permissions, the more active permissions, such as
 CAMERA or SEND\_SMS, were much less frequently exposed. The correlation between
 exposed permissions and common ones, seen below as the percent of vulnerable
@@ -153,7 +152,7 @@ represented leaks of sensitive or privileged information. We confirmed this by
 checking to see if any of the apps made calls to
 \href{https://developer.android.com/reference/android/app/Activity.html#setResult\%28int\%29}{setResult}. Very
 few did, and most were only statically setting result codes (i.e. result codes
-were not informative of whether activity request succeeded or not).
+were not informative of whether the activity request succeeded or not).
 
 We looked at apps which called \texttt{get.*Extra}, being any of the Android
 Intent data extraction calls like getBundleExtra, getCharArrayExtra,
@@ -170,8 +169,10 @@ still enters the number and knows that the text message is being sent, this
 could be an effective SMS spamming mechanism.
 
 \paragraph{Internet Based Exploits} ~\\
-The most common vulnerability found was apps that would load an arbitrary URL on
-receiving an Intent. We found two apps,
+The most commonly leaked permission was INTERNET, and of the 97 applications
+returned by our static analysis tool as exposing that permission, X allowed
+arbitrary URLs to be loaded in the app's WebView. For example, we found two
+apps,
 \href{https://play.google.com/store/apps/details?id=com.audioaddict.jr\&feature=search\_result#?t=W251bGwsMSwxLDEsImNvbS5hdWRpb2FkZGljdC5qciJd}{Jazz
 Internet Radio} and
 \href{https://play.google.com/store/apps/details?id=com.audioaddict.sky\&feature=search\_result#?t=W251bGwsMSwxLDEsImNvbS5hdWRpb2FkZGljdC5za3kiXQ..}{Sky.FM},
