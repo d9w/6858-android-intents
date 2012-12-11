@@ -211,12 +211,13 @@ While our static analysis tool checked for permission differences between
 entry and exit points, we only found permission escalations from no permissions
 to any one of those enumerated above. This suggests that app developers aren't
 checking the permissions of incoming Intents, otherwise we would have seen a
-greater diversity of entry point permissions. The StackOverflow, the now
-official Android help forum, results for the Context method
-checkCallingPermission support this idea. The default Android applications also
-don't seem to regard Intent permissions; we found privelege escalation paths in
-the default browser and camera apps. However, there are very few applications
-that rely on Intent data for important or sensitive parts of their
-functionality.
+greater diversity of entry point permissions. A search for
+questions about the checkCallingPermissions methods on StackOverflow, the now
+official Android help forum, does not return many results which supports the
+hypothesis that developers are not using this feature. The default Android
+applications also allow privilge escalation through Intents; we found privilege
+escalation paths in both the default browser and camera apps. However, there
+are very few applications that rely on Intent data for important or sensitive
+parts of their functionality.
 \bibliography{writeup}
 \end{document}
