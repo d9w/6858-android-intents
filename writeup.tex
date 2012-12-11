@@ -208,17 +208,19 @@ Intent filter catches Intents of that specific URI scheme (\texttt{malware://})
 and returns control to the application.
 
 \paragraph{Conclusion} ~\\
-While our static analysis tool checked for permission differences between
-entry and exit points, we only found permission escalations from no permissions
-to any one of those enumerated above. This suggests that app developers aren't
-checking the permissions of incoming Intents, otherwise we would have seen a
-greater diversity of entry point permissions. A search for
-questions about the checkCallingPermissions methods on StackOverflow, the now
-official Android help forum, does not return many results which supports the
-hypothesis that developers are not using this feature. The default Android
-applications also allow privilge escalation through Intents; we found privilege
-escalation paths in both the default browser and camera apps. However, there
-are very few applications that rely on Intent data for important or sensitive
-parts of their functionality.
+While our static analysis tool checked for discrepancies in the
+permission requirements to access the entry points in apps and the permissions
+used by the app in the same code path, we only found apps that with entry
+points that did not require any permissions with exit points that did require
+permissions, rather than any apps that checked for the wrong permissions.
+This suggests that app developers are not checking the permissions of incoming
+Intents, otherwise we would have seen a greater diversity of entry point
+permissions. A search for questions about the checkCallingPermissions methods on
+StackOverflow, the now official Android help forum, does not return many results
+which supports the hypothesis that developers are not using this feature. The
+default Android applications also allow privilge escalation through Intents; we
+found privilege escalation paths in both the default browser and camera apps.
+However, there are very few applications that rely on Intent data for important
+or sensitive parts of their functionality.
 \bibliography{writeup}
 \end{document}
