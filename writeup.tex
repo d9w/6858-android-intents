@@ -168,27 +168,35 @@ to send arbitrary text in place of the user's original message. While the user
 still enters the number and knows that the text message is being sent, this
 could be an effective SMS spamming mechanism.
 
+Close inspection of the decompiled application code returned by our application
+led to the discovery of similar potential attack vectors. Some are not linked
+to any one permission, but rather the functionality of the application, and are
+therefore not in the current scope of the static analysis tool. Detection of
+these vulnerabilities from decompiled bytecode proved difficult and may be more
+suited for source code analysis.
+
 \paragraph{Internet Based Exploits} ~\\
 The most commonly leaked permission was INTERNET, and of the 97 applications
-returned by our static analysis tool as exposing that permission, X allowed
+returned by our static analysis tool as exposing that permission, 7 allowed
 arbitrary URLs to be loaded in the app's WebView. For example, we found two
 apps,
 \href{https://play.google.com/store/apps/details?id=com.audioaddict.jr\&feature=search\_result#?t=W251bGwsMSwxLDEsImNvbS5hdWRpb2FkZGljdC5qciJd}{Jazz
 Internet Radio} and
 \href{https://play.google.com/store/apps/details?id=com.audioaddict.sky\&feature=search\_result#?t=W251bGwsMSwxLDEsImNvbS5hdWRpb2FkZGljdC5za3kiXQ..}{Sky.FM},
-both of which import CatalogActivity from the Flurry library, which will load
-any URL sent to it in an Intent. Although a malicious app that exploits these
-apps does not receive the response from the request, the app can submit forms
-containing any data that the app had access to as well as visit malicious
-websites. This has several security related implications. First, it allows the
-attacker to exfiltrate data from the app that the user believed would be used
-only by the application. Users may be less careful about giving sensitive data
-to apps that they believe do not have access to the internet.  Also, a malcious
-app could connect to an ad server and generate fraudulent ad clicks, while
-potentially depleting the user's data plan.  Finally, the ability to force the
-user to visit an attacker controlled URL means that attackers can learn the IP
-address of any user, which is one of the factors used to determine the coarse
-location, which is supposed to be protected.
+both of which import CatalogActivity from the
+\href{http://support.flurry.com/index.php?title=AppCircle/GettingStarted/Android/TechnicalQuickStart}{Flurry}
+library, which will load any URL sent to it in an Intent. Although a malicious
+app that exploits these apps does not receive the response from the request, the
+app can submit forms containing any data that the app had access to as well as
+visit malicious websites. This has several security related implications. First,
+it allows the attacker to exfiltrate data from the app that the user believed
+would be used only by the application. Users may be less careful about giving
+sensitive data to apps that they believe do not have access to the internet.
+Also, a malcious app could connect to an ad server and generate fraudulent ad
+clicks, while potentially depleting the user's data plan.  Finally, the ability
+to force the user to visit an attacker controlled URL means that attackers can
+learn the IP address of any user, which is one of the factors used to determine
+the coarse location, which is supposed to be protected.
 
 Interestingly, the stock Android browser will also load any URL that it receives
 in an Intent. This means that any app can force the browser to visit any link
@@ -222,5 +230,14 @@ default Android applications also allow privilge escalation through Intents; we
 found privilege escalation paths in both the default browser and camera apps.
 However, there are very few applications that rely on Intent data for important
 or sensitive parts of their functionality.
+
+The static analysis tool we developed does not completely detect permission
+escalation, and future work could be done to refine the tool. However, this
+would only support potential attackers in finding exploitable applications. The
+tools\cite{lu_chex_2012} for protecting against privelege escalation exploits
+already exist, along with default Android functions like checkCallingPermissions
+that limit incoming Intents. Developers do not seem to be using these tools,
+which suggests that the Android platform needs better vetting of applications
+before allowing them in the app market. 
 \bibliography{writeup}
 \end{document}
