@@ -73,8 +73,7 @@ actions. We implement the component analysis strategy from
 identify all privileged calls made by the application
 \cite{felt_android_2011}. Then we use a control flow graph of the program to
 determine which open components lead to privileged calls - these paths represent
-potential vulnerabilities. Our tool operates on apk files in order to analyze
-both open- and non-open-source applications.
+potential vulnerabilities. 
 
 First, we extract the manifest file from the apk and compile a list of ``open''
 components: public components, protected by weak or no permissions which are
@@ -135,11 +134,10 @@ applications. Either INTERNET, READ\_PHONE\_STATE, or ACCESS\_FINE\_LOCATION
 were leaked in 113 of 382 applications. While exploits are possible with these
 permissions, the more active permissions (and thus provide more interesting
 exploits if leaked), such as CAMERA or SEND\_SMS, were much less frequently
-exposed. The correlation between exposed permissions and common ones, seen in
-Table~\ref{tab:results} as the percent of vulnerable permissions to declared
-ones, suggests that developers don't consider the security risks of the common
-permissions. Users are also probably more willing to simply allow an app to have
-these permissions.
+exposed. The correlation between exposed permissions and common ones suggests
+that developers don't consider the security risks of the common permissions.
+Users are also probably more willing to simply allow an app to have these
+permissions.
 \begin{table}
 \caption{Permission use and leakage}
 \input{stats}
@@ -164,12 +162,12 @@ that many were properly sanitizing the input, but some were not. An example is
 \href{https://play.google.com/store/apps/details?id=com.netqin.ps\&feature=search\_result#?t=W251bGwsMSwxLDEsImNvbS5uZXRxaW4ucHMiXQ..}{Vault
   Hide SMS, Pics \& Videos}, an app that allows users to store SMS messages,
 contacts, call logs, photos, and videos in a password-protected and encrypted
-space. This app leaks the permissions GET\_TASKS, INTERNET, READ\_PHONE\_STATE,
-CHANGE\_COMPONENT\_ENABLED\_STATE, and SEND\_SMS. The message sender gets number
-information from the user and message data from an Intent, allowing an attacker
-to send arbitrary text in place of the user's original message. While the user
-still enters the number and knows that the text message is being sent, this
-could potentially be used to generate SMS spam.
+space. This app leaks the permissions CHANGE\_COMPONENT\_ENABLED\_STATE,
+GET\_TASKS, INTERNET, READ\_PHONE\_STATE, and SEND\_SMS. The message sender
+gets number information from the user and message data from an Intent, allowing
+an attacker to send arbitrary text in place of the user's original message.
+While the user still enters the number and knows that the text message is being
+sent, this could potentially be used to generate SMS spam.
 
 Close inspection of the decompiled application code returned by our application
 led to the discovery of similar potential attack vectors. Some are not linked
@@ -188,7 +186,8 @@ click for a picture to be taken. Android does provide a system level permission
 INJECT\_EVENTS that lets the application inject events such as clicks into the
 event stream for any window, but this permission is purposefully warned against
 by Android and would be suspicious in any app. The attack vector is further
-limited by the transfer of control to the vulnerable application.
+limited by the transfer of control to the vulnerable application; the malicious
+application can not regain contol after sending an Inent in most applications.
 
 \paragraph{Internet Based Exploits} ~\\
 The most commonly leaked permission was INTERNET, and of the 97 applications
@@ -235,25 +234,23 @@ Intent filter catches Intents of that specific URI scheme (\texttt{malware://})
 and returns control to the application.
 
 \paragraph{Conclusion} ~\\
-Our analysis of 3rd party apps looked for possibly ways a malicious Intent could
+Our analysis of 3rd party apps looked for possible ways a malicious Intent could
 trigger privileged calls by the app. We found that over half of the apps
 examined leaked one or more privileged calls. However, very few (7 out of 97,
 for INTERNET-leaking apps) leaked interesting, actionable exploits.
 
-While our static analysis tool checked for differences in the permission
-requirements to access the entry points in apps and the permissions used by the
-app in the same code path, we only found apps that with entry points that did
-not require any permissions with exit points that did require permissions,
-rather than any apps that checked for the wrong permissions.  This suggests that
-app developers are not checking the permissions of incoming Intents, otherwise
-we would have seen a greater diversity of entry point permissions. A search for
-questions about the checkCallingPermissions methods on StackOverflow, the now
-official Android help forum, does not return many results which supports the
-hypothesis that developers are not using this feature. The default Android
-applications also allow privilge escalation through Intents; we found privilege
-escalation paths in both the default browser and camera apps.  However, there
-are very few applications that rely on Intent data for important or sensitive
-parts of their functionality.
+While our static analysis tool checked for permission differences between entry
+and exit points in applications, we only found permission escalation from no
+permissions to those enumerated above. This suggests that app developers are not
+checking the permissions of incoming Intents, otherwise we would have seen a
+greater diversity of entry point permissions. A search for questions about the
+checkCallingPermissions methods on StackOverflow, the now official Android help
+forum, does not return many results which supports the hypothesis that
+developers are not using this feature. The default Android applications also
+allow privilge escalation through Intents; we found privilege escalation paths
+in both the default browser and camera apps.  However, there are very few
+applications that rely on Intent data for important or sensitive parts of their
+functionality.
 
 The static analysis tool we developed does not completely detect permission
 escalation, and future work could be done to refine the tool. However, this
