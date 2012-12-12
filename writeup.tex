@@ -17,7 +17,7 @@ deadline.
 applications}
 \date{\today}
 \author{Kelly Casteel, \texttt{kcasteel}\\Owen Derby, \texttt{oderby}\\Dennis
- Wilson, \texttt{dennisw}}
+Wilson, \texttt{dennisw}}
 
 \begin{document} \bibliographystyle{plain}
 
@@ -30,10 +30,12 @@ one another by passing messages, called
 which effectively specify both a procedure to call and the arguments to use.
 Applications must declare in a static manifest file which Intents each component
 services, as well as both application and component level permissions. While the
-security vulnerabilities in outgoing Intents has been well studied
+security vulnerabilities in outgoing Intents have been well studied
 \cite{chin_analyzing_2011} and developer tools exist to limit potentially
 insecure Intents \cite{lu_chex_2012}, little has been done to address malicious
-incoming Intents. Exploits of this nature have been discovered in firmware of
+incoming Intents. 
+
+Exploits of this nature have been discovered in firmware of
 various Android phones \cite{grace_systematic_2012}, but exploits in third-party
 applications are not well studied. Application developers must make sure their
 manifest file has been properly configured to only accept desired Intents, which
@@ -49,22 +51,20 @@ To start, we implemented a basic static analysis tool to aid us in identifying
 potential vulnerabilities in Android applications. We are not the first to look
 at such vulnerabilities \cite{chin_analyzing_2011}, nor to build such a tool
 \cite{grace_systematic_2012}. However, in the absence of any freely-available
-such tools, we took it as a learning opportunity to build our own (borrowing
-ideas freely from the previous literature). Here, we describe the basic design
+such tools, we took it as a learning opportunity to build our own, borrowing
+ideas freely from the previous literature. Here, we describe the basic design
 of our tool and any interesting decisions we made, but the curious reader should
 reference \cite{chin_analyzing_2011} and \cite{grace_systematic_2012} for more
 details.
 
 We built our tool using Androguard \cite{androguard}, a python FOS library
-written ``to play with'' Android applications. Androguard is a library built, in
-part, to support creation of static analysis tools for the Android platform - it
-supports disassembly and decompilation of apks, Android applications packages,
-into Java-approximate source code (it doesn't recompile, but it is very nearly
-complete) for human-readability, as well as intermediate basic blocks for static
-analysis and control-flow graph creation. It provides basic search functionality
-over the decompiled basic blocks. Despite this long list of features, a lot of
-work went into understanding how to use the library (it has minimal
-documentation) and coercing it into doing what we wanted.
+library built, in part, to support creation of static analysis tools for the
+Android platform. It supports disassembly and decompilation of apks, Android
+application packages, into Java-approximate source code for human-readability,
+as well as intermediate basic blocks for static analysis and control-flow graph
+creation. It provides basic search functionality over the decompiled basic
+blocks. Despite this long list of features, a lot of work went into
+understanding how to use the library and coercing it into doing what we wanted.
 
 The tool examines execution traces through an application, looking for places
 where malicious Intents might cause the program to unintentionally perform
@@ -73,8 +73,8 @@ privileged actions. We implement the component analysis strategy from
 also identify privileged calls made by the application
 \cite{felt_android_2011}. Then we use a control flow graph of the program to
 determine which public components lead to privileged calls, which represent
-potential vulnerabilities. Our tool operates on raw Android apks. We use the apk
-files in order to analyze both open- and non-open-source application.
+potential vulnerabilities. Our tool operates on apk files in order to analyze
+both open- and non-open-source applications.
 
 First, we extract the manifest file from the apk and compile a list of ``open''
 components: public components, protected by weak or no permissions which are
@@ -100,14 +100,14 @@ application. These paths represent possible vulnerabilities because they allow
 an unprivileged application to cause execution of privileged methods via an
 Intent.
 
-Here we quickly discuss the limitations of our tool. Because our intention was
-to quickly discover many vulnerabilities in 3rd party applications, but not
-exhaustively so, we did not handle discontinuities in the control flow graph
-resulting from callbacks (see 2.1.1 in \cite{grace_systematic_2012}). This means
-there are possibly many more vulnerabilities in the applications we examined
-that what we reported. Further, because Android many non-harmful methods still
-require permissions, there are a lot of ``vulnerabilities'' identified which are
-not very harmful in practice. For example,
+Because our intention was to quickly discover many vulnerabilities in 3rd party
+applications, but not exhaustively so, we did not handle discontinuities in the
+control flow graph resulting from callbacks (see 2.1.1 in
+\cite{grace_systematic_2012}). This means there are possibly many more
+vulnerabilities in the applications we examined that what we reported. Further,
+because many non-harmful methods still require permissions, there are a lot of
+``vulnerabilities'' identified which are not very harmful in practice.  For
+example,
 \href{https://developer.android.com/reference/android/telephony/PhoneNumberUtils.html#getNumberFromIntent\%28android.content.Intent,\%20android.content.Context\%29}{getNumberFromIntent}
 requires permission CALL\_PRIVILEGED. However, without any additional
 vulnerabilities in the application, such privileged call is not very
@@ -120,11 +120,12 @@ We downloaded 382 applications as apk files using Real Apk Leecher
 get applications, so all results were verified applications in the Android
 market. Various keywords for potential interesting attack vectors, such as
 ``camera,'' ``contacts,'' ``sms,'' and more were used to search for
-applications. The free applications from the top 60 search results, sorted by
-application popularity, for each keyword were downloaded for analysis.  This
-ensured that the applications were popular and currently used applications; the
-attacker could be fairly certain that some were already downloaded by a
-potential victim.
+applications. 
+
+The free applications from the top 60 search results, sorted by application
+popularity, for each keyword were downloaded for analysis.  This ensured that
+the applications were popular and currently used applications; the attacker
+could be fairly certain that some were already downloaded by a potential victim.
 
 \paragraph{Findings of analysis} ~\\
 The permissions most commonly leaked were mostly the permissions most commonly
@@ -166,14 +167,26 @@ CHANGE\_COMPONENT\_ENABLED\_STATE, and SEND\_SMS. The message sender gets number
 information from the user and message data from an Intent, allowing an attacker
 to send arbitrary text in place of the user's original message. While the user
 still enters the number and knows that the text message is being sent, this
-could be an effective SMS spamming mechanism.
+could potentially be used to generate SMS spam.
 
 Close inspection of the decompiled application code returned by our application
 led to the discovery of similar potential attack vectors. Some are not linked
 to any one permission, but rather the functionality of the application, and are
 therefore not in the current scope of the static analysis tool. Detection of
 these vulnerabilities from decompiled bytecode proved difficult and may be more
-suited for source code analysis.
+suited for source code analysis. 
+
+The decompiled application code for active permissions such as CAMERA or\\
+SEND\_SMS revealed that most applications require user confirmation or alert the
+user of the permission use inherently by changing screens or displaying input
+text before execution. An example of this is the CAMERA permission; applications
+including the system camera app allowed Intents to start the camera. However,
+once the camera is started, the user will see the camera output and will have to
+click for a picture to be taken. Android does provide a system level permission
+INJECT\_EVENTS that lets the application inject events such as clicks into the
+event stream for any window, but this permission is purposefully warned against
+by Android and would be suspicious in any app. The attack vector is further
+limited by the transfer of control transfers to the vulnerable application.
 
 \paragraph{Internet Based Exploits} ~\\
 The most commonly leaked permission was INTERNET, and of the 97 applications
@@ -188,20 +201,24 @@ both of which import CatalogActivity from the
 library, which will load any URL sent to it in an Intent. Although a malicious
 app that exploits these apps does not receive the response from the request, the
 app can submit forms containing any data that the app had access to as well as
-visit malicious websites. This has several security related implications. First,
-it allows the attacker to exfiltrate data from the app that the user believed
-would be used only by the application. Users may be less careful about giving
-sensitive data to apps that they believe do not have access to the internet.
-Also, a malcious app could connect to an ad server and generate fraudulent ad
-clicks, while potentially depleting the user's data plan.  Finally, the ability
-to force the user to visit an attacker controlled URL means that attackers can
-learn the IP address of any user, which is one of the factors used to determine
-the coarse location, which is supposed to be protected.
+visit malicious websites. 
+
+This has several security related implications. First, it allows the attacker to
+exfiltrate data from the app that the user believed would be used only by the
+application. Users may be less careful about giving sensitive data to apps that
+they believe do not have access to the internet.  Also, a malcious app could
+connect to an ad server and generate fraudulent ad clicks, while potentially
+depleting the user's data plan.  Finally, the ability to force the user to visit
+an attacker-controlled URL means that attackers can learn the IP address of any
+user, which is one of the factors used to determine the coarse location, which
+is supposed to be protected.
 
 Interestingly, the stock Android browser will also load any URL that it receives
 in an Intent. This means that any app can force the browser to visit any link
-using the user's cookies. This means that phishing attacks can be embedded in
-apps that were not supposed to have access to the internet in the first place.
+using the user's cookies; it is reasonable to assume that a mobile user would
+visit many cookie-saving sites in the default browser. Phishing attacks can
+therefore be embedded in apps that were not supposed to have access to the
+internet in the first place.
 
 \paragraph{Example Exploit} ~\\
 We built an exploit to demonstrate the vulnerability we found in the Android
@@ -216,28 +233,28 @@ Intent filter catches Intents of that specific URI scheme (\texttt{malware://})
 and returns control to the application.
 
 \paragraph{Conclusion} ~\\
-While our static analysis tool checked for discrepancies in the
-permission requirements to access the entry points in apps and the permissions
-used by the app in the same code path, we only found apps that with entry
-points that did not require any permissions with exit points that did require
-permissions, rather than any apps that checked for the wrong permissions.
-This suggests that app developers are not checking the permissions of incoming
-Intents, otherwise we would have seen a greater diversity of entry point
-permissions. A search for questions about the checkCallingPermissions methods on
-StackOverflow, the now official Android help forum, does not return many results
-which supports the hypothesis that developers are not using this feature. The
-default Android applications also allow privilge escalation through Intents; we
-found privilege escalation paths in both the default browser and camera apps.
-However, there are very few applications that rely on Intent data for important
-or sensitive parts of their functionality.
+While our static analysis tool checked for differences in the permission
+requirements to access the entry points in apps and the permissions used by the
+app in the same code path, we only found apps that with entry points that did
+not require any permissions with exit points that did require permissions,
+rather than any apps that checked for the wrong permissions.  This suggests that
+app developers are not checking the permissions of incoming Intents, otherwise
+we would have seen a greater diversity of entry point permissions. A search for
+questions about the checkCallingPermissions methods on StackOverflow, the now
+official Android help forum, does not return many results which supports the
+hypothesis that developers are not using this feature. The default Android
+applications also allow privilge escalation through Intents; we found privilege
+escalation paths in both the default browser and camera apps.  However, there
+are very few applications that rely on Intent data for important or sensitive
+parts of their functionality.
 
 The static analysis tool we developed does not completely detect permission
 escalation, and future work could be done to refine the tool. However, this
-would only support potential attackers in finding exploitable applications. The
-tools\cite{lu_chex_2012} for protecting against privelege escalation exploits
-already exist, along with default Android functions like checkCallingPermissions
-that limit incoming Intents. Developers do not seem to be using these tools,
-which suggests that the Android platform needs better vetting of applications
-before allowing them in the app market. 
+would mostly support potential attackers in finding exploitable applications.
+The tools\cite{lu_chex_2012} for protecting against privelege escalation
+exploits already exist, along with default Android functions like
+checkCallingPermissions that limit incoming Intents. Developers do not seem to
+be using these tools, which suggests that the Android platform needs better
+vetting of applications before allowing them in the app market.
 \bibliography{writeup}
 \end{document}
